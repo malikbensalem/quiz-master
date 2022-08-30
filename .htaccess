@@ -1,0 +1,9 @@
+RewriteEngine on
+RewriteCond %{SERVER_PORT} 80
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.php -f
+
+SetEnv ROOT_PATH C:/wamp64/www/quiz-master/
+
+ErrorDocument 404 /quiz-master/assets/errors/404.php

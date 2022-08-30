@@ -1,0 +1,24 @@
+.active:hover{
+  cursor: default
+}
+
+.disabled,*[disabled]{
+	cursor: not-allowed!important;
+}
+.alert{
+  text-align: center;
+}
+
+*[contenteditable="true"]{
+  outline: grey 2px dashed;
+}
+*[readonly]{
+  cursor: default;
+}
+label{
+  font-weight: 500;
+  margin-bottom: 0px;
+}
+td{
+  vertical-align: middle !important;
+}

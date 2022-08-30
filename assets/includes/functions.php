@@ -28,6 +28,9 @@ function getHead($title){
 
 	echo "<link rel='stylesheet' href='".$baseURL."assets/css/style.css?v=".$style_css_v."'>";
 }
+function hashPW($email,$pw){
+	return hash('sha512',openssl_encrypt($email.$pw ,'aes-256-cfb', PW_KEY, 0,PW_ENCRYPT));
+}
 function breadcrumbs($active=[],$text=[]){
 	global $baseURL;
 

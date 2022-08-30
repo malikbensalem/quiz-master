@@ -1,12 +1,12 @@
 <?
-include $_SERVER['ROOT_PATH'].'assets/connection/dbc.php';
+include_once $_SERVER['ROOT_PATH'].'assets/connection/dbc.php';
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <?getHead('401')?>
-        <link rel="stylesheet" type="text/css" href="errors.css">
+        <link rel="stylesheet" type="text/css" href="<?echo $baseURL?>assets/errors/errors.css">
         </style>
     </head>
     <body>

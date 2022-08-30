@@ -6,7 +6,7 @@ include $_SERVER['ROOT_PATH'].'assets/connection/dbc.php';
 <html lang="en">
     <head>
 		<?getHead('404')?>
-        <link rel="stylesheet" type="text/css" href="errors.css">
+        <link rel="stylesheet" type="text/css" href="<?echo $baseURL?>assets/errors/errors.css">
     </head>
     <body>
 

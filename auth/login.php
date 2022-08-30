@@ -105,4 +105,3 @@ $_SESSION['user_level']='0';
 		</script>
 	</body>
 </html>
-			

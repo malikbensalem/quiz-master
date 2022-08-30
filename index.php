@@ -16,7 +16,7 @@ $_SESSION['user_level']='0';
             <div class="text-center">
                 <img class="img-fluid rounded-circle" src="<?echo $baseURL?>assets/images/logo.svg" width="150" alt="logo" />
                 <h1 class="text-white fs-3 fw-bolder">WebbiSkools</h1>
-                <a href="login.php" class="btn btn-info">Click here to login or register</a>
+                <a href="<?echo $baseURL?>auth/login.php" class="btn btn-info">Click here to login or register</a>
             </div>
         </header>
         <div class="container my-5">

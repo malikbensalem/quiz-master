@@ -16,7 +16,7 @@ if (isPost()){
 		if ($id){
 			mysqli_query($mysqli,"UPDATE question_header SET qh_title='$title',qh_qc_id='".str_replace('"','',json_encode($cat))."',qh_qs_id=$sts WHERE qh_id=$id") or die (json_encode(['result'=>false]));
 		}else{
-			mysqli_query($mysqli,"INSERT INTO question_header (qh_title,qh_qc_id,qh_qs_id) VALUES('$title','".json_encode($cat)."',$sts)") or die (json_encode(['result'=>false]));
+			mysqli_query($mysqli,"INSERT INTO question_header (qh_title,qh_u_id,qh_qc_id,qh_qs_id) VALUES('$title','".$_SESSION['user_id']."','".json_encode($cat)."',$sts)") or die (json_encode(['result'=>false]));
 		}
 		die (json_encode(['result'=>true]));
 	}
@@ -48,31 +48,23 @@ elseif (isGet()){
 
 		$joins='';
 
-		if ($assigned==2){
-			$cond .= " AND qha_u_id = ".$_SESSION['user_id']." ";
-			$joins .= ' INNER JOIN question_header_assignee ON qha_qh_id=qh_id ';
+		if ($assigned==1){
+			$cond .= " AND (qh_u_id = ".$_SESSION['user_id']." OR qha_u_id = ".$_SESSION['user_id'].") ";
 		}
-		elseif ($assigned==3){
+		elseif ($assigned==2){
 			$cond .= " AND qha_u_id != ".$_SESSION['user_id'];
 		}
-		else{
-			$joins .= ' LEFT JOIN question_header_assignee ON qha_qh_id=qh_id ';
 
-		}
-		$joins .= ' LEFT JOIN users ON u_id=qha_u_id ';
 		if ($complete==1){
-			$joins .= ' LEFT JOIN users_question_header ON u_id=uqh_id ';
 			$cond .= " AND uqh_id != ".$_SESSION['user_id'];
 		}
 		elseif($complete==2){
-			$joins .= ' INNER JOIN users_question_header ON u_id=uqh_id ';
 			$cond .= " AND uqh_score < qh_pass";
 		}
 		elseif($complete==3){
-			$joins .= ' INNER JOIN users_question_header ON u_id=uqh_id ';
 			$cond .= " AND uqh_score >= qh_pass";			
 		}
-		$qq=mysqli_query($mysqli,"SELECT qh_id,qh_title,qh_pass,qh_pass>=(SELECT max(uqh_score) FROM users_question_header WHERE uqh_u_id=".$_SESSION['user_id'].") as qh_passed, CONCAT(u_first_name,' ',u_last_name) as f_name,GROUP_CONCAT(qc_id SEPARATOR ', ') as c_id ,GROUP_CONCAT(qc_desc SEPARATOR ', ') as c_desc FROM question_header LEFT JOIN question_category ON JSON_CONTAINS(qh_qc_id, CAST(qc_id as JSON), '\$') $joins  WHERE qh_qs_id in ($sts) $cond $cats GROUP BY qh_id") or die(json_encode(['result'=>false, 'error'=>500]));
+		$qq=mysqli_query($mysqli,"SELECT qh_id,qh_title,qh_pass,qh_pass>=(SELECT max(uqh_score) FROM users_question_header WHERE uqh_u_id=".$_SESSION['user_id'].") as qh_passed, CONCAT(u_first_name,' ',u_last_name) as f_name,GROUP_CONCAT(qc_id SEPARATOR ', ') as c_id ,GROUP_CONCAT(qc_desc SEPARATOR ', ') as c_desc FROM question_header LEFT JOIN question_category ON JSON_CONTAINS(qh_qc_id, CAST(qc_id as JSON), '\$') LEFT JOIN question_header_assignee ON qha_qh_id=qh_id LEFT JOIN users ON u_id=qha_u_id LEFT JOIN users_question_header ON u_id=uqh_id WHERE qh_qs_id in ($sts) $cond $cats GROUP BY qh_id") or die(json_encode(['result'=>false, 'error'=>500]));
 
 		while ($r=mysqli_fetch_assoc($qq)){			
 			$qas[]=[

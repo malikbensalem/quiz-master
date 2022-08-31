@@ -5,7 +5,7 @@ if (isPost()){
 	if ($_POST['action']=='login'){
 		$em=$_POST['em'];
 		$pw=hashPW($em,$_POST['pw']);
-		$sts=setUserSession($em,$pw)
+		$sts=setUserSession($em,$pw);
 		if ($sts==false){
 			die(json_encode(['result'=>false,'alert'=>'<div class="alert alert-danger">Wrong email or password.</div>']));
 		}
@@ -28,6 +28,7 @@ if (isPost()){
 	}
 }
 function setUserSession($em,$pw){
+	global $mysqli;
 	$noUser=mysqli_query($mysqli,"SELECT u_id,u_us_id,u_ut_id FROM users WHERE u_email='$em' AND u_password='$pw'");
 	if (mysqli_num_rows($noUser)==0){
 		return fasle; 
@@ -35,4 +36,3 @@ function setUserSession($em,$pw){
 	list($_SESSION['user_id'],$sts,$_SESSION['user_level'])=mysqli_fetch_row($noUser);
 	return $sts;
 }
-amended

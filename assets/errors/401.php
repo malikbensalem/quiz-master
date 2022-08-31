@@ -22,9 +22,9 @@ include_once $_SERVER['ROOT_PATH'].'assets/connection/dbc.php';
             <div class="row">
                 <div class="col-md-6 text-center">
                     <h1>401</h1>
-                    <h2>Page not found</h2>
+                    <h2>Unauthorised access</h2>
                     <br><hr>
-                    <h3 style="font-weight:normal" class="text-center">The barrier is blocking your path due to unauthrised access.</h3>
+                    <h3 style="font-weight:normal" class="text-center">The barrier is blocking your path. You are not allowed any further.</h3>
                 </div>
                 <div class="col-md-6 text-center">
                     <?breadcrumbs()?>

@@ -49,7 +49,7 @@ function breadcrumbs($active=[],$text=[]){
 		<a class="btn btn-lg btn-block btn-outline-info active">Links</a>
 		<a class="btn btn-lg btn-block btn-outline-dark " href="javascript:history.back()">Go Back</a>';
 	if (loggedin()){
-		echo '<a data-questionnaire href="'.$baseURL.'questionnaire.php" class="btn btn-lg btn-block btn-outline-dark" >Questionnaires</a>
+		echo '<a data-questionnaire href="'.$baseURL.'questionnaire/" class="btn btn-lg btn-block btn-outline-dark" >Questionnaires</a>
 		<a data-results href="'.$baseURL.'results.php" class="btn btn-lg btn-block btn-outline-dark">See Results</a>
 		'.($_SESSION['user_level']>1?'<a data-users href="'.$baseURL.'users.php" class="btn btn-lg btn-block btn-outline-dark">'.($_SESSION['user_level']>1?"View":'Manage').' users</a>':'');
 	}

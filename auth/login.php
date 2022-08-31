@@ -134,7 +134,7 @@ $_SESSION['user_level']='0';
                 success: function(data) {
                 	timedAlert('#alert',data.alert)
                 	if (data.result){
-                		timedRedirect('<?echo $baseURL?>questionnaire.php')
+                		timedRedirect('<?echo $baseURL?>questionnaire/')
                 	}
                 	else{
             			$('#login').removeClass('disabled')

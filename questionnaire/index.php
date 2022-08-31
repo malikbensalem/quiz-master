@@ -81,8 +81,6 @@ if (!loggedin()){
 	                },
 	                dataType: 'json',
 	                success: function(data) {
-                		$('#statuses button').removeClass('active')
-                		$('#statuses button[data-btn-status="'+sts+'"]').addClass('active')
                 		$('#tbl-questionnaire tbody').html('')
 	                	if (data.result){
 	                		

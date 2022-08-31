@@ -48,3 +48,8 @@ $('.table-responsive').on('show.bs.select', function () {
 	$('.bootstrap-table').css( "overflow", "inherit" ); 
 	$('.fixed-table-body').css( "overflow", "inherit" );     
 });
+$('#statuses button[data-btn-status]').click(function(){
+	$('#statuses button[data-btn-status]').removeClass('active')
+	$(this).addClass('active')
+})
+$('#statuses button[data-btn-status=1]').addClass('active')

@@ -75,7 +75,7 @@
     if ($('#cem-title').val()!=''){
   		$.ajax({
         method: 'POST',
-        url: 'xhr.php',
+        url: '<?echo $baseURL?>questionnaire/xhr.php',
         data: {
           action:'save_questionnaire',
           id:$('#cem-save').data('id'),
@@ -97,12 +97,11 @@
           }
           return false
         }
-      }).then(function(res){console.log(res.result);return res.result}) 
+      })
     }
     else{
       timedAlert('#modal-alert','<div class="alert alert-danger">Cannot save without a title</div>')      
       return false
-
     }
 	}
   $('#create-q').click(function(){

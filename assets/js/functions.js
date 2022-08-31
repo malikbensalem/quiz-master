@@ -53,3 +53,13 @@ $('#statuses button[data-btn-status]').click(function(){
 	$(this).addClass('active')
 })
 $('#statuses button[data-btn-status=1]').addClass('active')
+
+function loader(loading){
+	if (loading){
+		$('body').append('<div class="loading "><i class="fa-solid fa-spinner fa-spin fa-10x "></i></div>')
+	}
+	else{
+		$('.loading').remove();
+	}
+
+}

@@ -35,7 +35,7 @@ if (!loggedin()){
 					<div class="btn-group-vertical btn-block">
 						<a class="btn btn-lg btn-block btn-outline-info active">Filters</a>
 						<select class="form-control form-select-lg selectpicker " title="Assign filter" id="assigned-filter" data-style="btn-outline-dark">
-							<option value="1" selected>Assigned</option>
+							<option value="1" selected>Assigned <?if($_SESSION['user_level']>2){?>/ owned<?}?></option>
 							<option value="2">Not assigned</option>
 						</select>
 						<select class="form-control form-select-lg selectpicker" title="Complete filter" id="complete-filter" data-style="btn-outline-dark">
@@ -58,6 +58,7 @@ if (!loggedin()){
 			</div>
 		</div>
 
+
 		<?if ($_SESSION['user_level']>1){
 			include $_SERVER['ROOT_PATH']."assets/modals/user_assign_modal.php";
 			include $_SERVER['ROOT_PATH']."assets/modals/create_edit_modal.php";
@@ -69,6 +70,7 @@ if (!loggedin()){
 			getQuestionnaires(1)
 			getQuestionnaireCategories()
 			function getQuestionnaires(sts,cat=[],assign=1,complete=1){
+				loader(true)
 				$.ajax({
 	                method: 'GET',
 	                url: 'xhr.php',
@@ -91,6 +93,8 @@ if (!loggedin()){
 	                	else{
 	                		emptyTableMsg('#tbl-questionnaire tbody','There are no questionnaires')
 	                	}
+					loader(false)
+
 	                }
 				})
 			}

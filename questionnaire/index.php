@@ -38,11 +38,13 @@ if (!loggedin()){
 							<option value="1" selected>Assigned <?if($_SESSION['user_level']>2){?>/ owned<?}?></option>
 							<option value="2">Not assigned</option>
 						</select>
+						<?if($_SESSION['user_level']==1){?>
 						<select class="form-control form-select-lg selectpicker" title="Complete filter" id="complete-filter" data-style="btn-outline-dark">
 							<option value="1" selected>Not attempted</option>
 							<option value="2">Not passed</option>
 							<option value="3">Passed</option>
 						</select>
+						<?}?>
 
 						<select class="form-control selectpicker" title="Subject filter"  multiple id="category-filter" data-actions-box="true" data-live-search="true" data-selected-text-format="count > 3" data-size="5" data-style="btn-outline-dark"></select>
 					</div>
@@ -50,7 +52,7 @@ if (!loggedin()){
 				<div class="col-md-8">
 					<div class="table-responsive">
 						<table class="table table-striped " id="tbl-questionnaire">
-							<thead><th>Title</th><th>Subject</th><th>Pass</th><?if($_SESSION['user_level']==1){?><th>Passed</th><?}?><th>Assigned by</th><th>Actions</th></thead>
+							<thead><th>Title</th><th>Subject</th><th>Pass</th><?if($_SESSION['user_level']==1){?><th>Passed</th><?}?><th>Assigned by</th><?if($_SESSION['user_level']>1){?><th>Owned by</th><?}?><th>Actions</th></thead>
 							<tbody></tbody>
 						</table>
 					</div>
@@ -87,7 +89,7 @@ if (!loggedin()){
 	                	if (data.result){
 	                		
 	                		data.quest.forEach(function(q){
-								$('#tbl-questionnaire tbody').append('<tr data-id='+q.id+'><td data-title>'+q.title+'</td><td data-cat="'+q.cid+'">'+q.cat+'</td><td>'+q.pass+'</td><?if ($_SESSION['user_level']==1){?><td>'+(q.passed==1?'<i class="fa-solid fa-check"></i>':'<i class="fa-solid fa-x"></i>')+'</td><td>'+q.assigned+'</td><?}?><td><div class="btn-group"><?if ($_SESSION['user_level']>1){?><button class="btn btn-light" data-edit title="Edit"><i class="fa-regular fa-pen-to-square"></i></button><button class="btn btn-dark" data-users title="Assignees"><i class="fa-solid fa-users"></i></button><?}?> <a href="show_questions?id='+q.id+'" class="btn btn-primary" title="Start"><i class="fa-solid fa-play"></i></a></div></td></tr>')
+								$('#tbl-questionnaire tbody').append('<tr data-id='+q.id+'><td data-title>'+q.title+'</td><td data-cat="'+q.cid+'">'+q.cat+'</td><td>'+q.pass+'</td><?if ($_SESSION['user_level']==1){?><td>'+(q.passed==1?'<i class="fa-solid fa-check"></i>':'<i class="fa-solid fa-x"></i>')+'<?}?></td><td>'+q.assigned+'</td><?if($_SESSION['user_level']>1){?><td>'+q.owned+'</td><?}?><td><div class="btn-group"><?if ($_SESSION['user_level']>1){?><button class="btn btn-light" data-edit title="Edit"><i class="fa-regular fa-pen-to-square"></i></button><button class="btn btn-dark" data-users title="Assignees"><i class="fa-solid fa-users"></i></button><?}?> <a href="show_questions?id='+q.id+'" class="btn btn-primary" title="Start"><i class="fa-solid fa-play"></i></a></div></td></tr>')
 	                		})
 	                	}
 	                	else{
@@ -104,10 +106,10 @@ if (!loggedin()){
 			})
 
 			$('#category-filter,#assigned-filter,#complete-filter').change(function(){
-				getQuestionnaires($('#statuses button[data-btn-status]').data('btn-status'),$('#category-filter').val(),$('#assigned-filter').val(),$('#complete-filter').val())
+				getQuestionnaires($('#statuses button[data-btn-status].active').data('btn-status'),$('#category-filter').val(),$('#assigned-filter').val(),$('#complete-filter').val())
 			})
 			$('#statuses button[data-btn-status]').click(function(){
-				getQuestionnaires($('#statuses button[data-btn-status]').data('btn-status'),$('#category-filter').val(),$('#assigned-filter').val(),$('#complete-filter').val())
+				getQuestionnaires($('#statuses button[data-btn-status].active').data('btn-status'),$('#category-filter').val(),$('#assigned-filter').val(),$('#complete-filter').val())
 			})
 			<?if ($_SESSION['user_level']>1){?>
 			$('#tbl-questionnaire tbody').on('click','button[data-users]',function(){

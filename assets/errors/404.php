@@ -10,7 +10,7 @@ include $_SERVER['ROOT_PATH'].'assets/connection/dbc.php';
     </head>
     <body>
 
-		<?include $_SERVER['ROOT_PATH'].'assets/includes/nav.php';?>
+		<?include $_SERVER['ROOT_PATH'].'assets/running/nav.php';?>
 
 		<div class="container">
             <div class="row">
@@ -36,7 +36,7 @@ include $_SERVER['ROOT_PATH'].'assets/connection/dbc.php';
         </div>
 
         
-		<?include $_SERVER['ROOT_PATH'].'assets/includes/footer.php'?>
+		<?include $_SERVER['ROOT_PATH'].'assets/running/footer.php'?>
     </body>
 </html>
 

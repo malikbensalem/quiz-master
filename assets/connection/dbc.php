@@ -1,7 +1,7 @@
 <?
 include $_SERVER['ROOT_PATH'].'/../quiz-master-creds/key.php';
 include $_SERVER['ROOT_PATH'].'../quiz-master-creds/creds.php';
-include $_SERVER['ROOT_PATH'].'assets/includes/functions.php';
+include $_SERVER['ROOT_PATH'].'assets/running/functions.php';
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();

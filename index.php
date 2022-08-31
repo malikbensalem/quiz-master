@@ -33,6 +33,6 @@ $_SESSION['user_level']='0';
                 </div>
             </div>
         </div>
-		<?include $_SERVER['ROOT_PATH'].'assets/includes/footer.php'?>
+		<?include $_SERVER['ROOT_PATH'].'assets/running/footer.php'?>
     </body>
 </html>

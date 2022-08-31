@@ -1,7 +1,7 @@
 <?
 function loggedin(){
 	global $mysqli;
-	return mysqli_num_rows(mysqli_query($mysqli,"SELECT u_id FROM user WHERE u_us_id=1 AND u_ut_id!=0 AND u_id='".$_SESSION['user_id']."'"))>0;
+	return mysqli_num_rows(mysqli_query($mysqli,"SELECT u_id FROM users WHERE u_us_id=1 AND u_ut_id!=0 AND u_id='".$_SESSION['user_id']."'"))>0;
 }
 function sanitize($value) {
   global $mysqli;

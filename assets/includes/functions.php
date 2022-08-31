@@ -17,15 +17,14 @@ function getHead($title){
 	global $baseURL;
 	$style_css_v=md5_file($_SERVER['ROOT_PATH']."assets/css/style.css");
 
-	echo "<meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'><meta name='description' content='questionnare page.'><meta name='author' content='Malik Bensalem'><meta name='docsearch:language' content='en'>";
-	echo "<title>$title</title>";
+	echo "<meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'><meta name='description' content='questionnare page.'><meta name='author' content='Malik Bensalem'><meta name='docsearch:language' content='en'><title>$title</title>";
 	echo "<link rel='stylesheet' href='".$baseURL."assets/css/bootstrap4.css'>";
-	echo "<link rel='stylesheet' href='".$baseURL."assets/css/font_awsome6.css' />";
-	echo '<link rel="stylesheet" href="'.$baseURL.'assets/css/bootstrap_select.css">';
-	echo '<script src="'.$baseURL.'assets/js/jquery.js"></script>';
+	echo "<link rel='stylesheet' href='".$baseURL."assets/css/font_awesome6.css' />";
+	echo "<link rel='stylesheet' href='".$baseURL."assets/css/bootstrap_select.css'>";
+	echo "<script src='".$baseURL."assets/js/jquery.js'></script>";
 	echo "<script src='".$baseURL."assets/js/popper.js'></script>";
+	echo "<script src='".$baseURL."assets/js/bootstrap4.js'></script>";
 	echo '<script src="'.$baseURL.'assets/js/bootstrap_select.js"></script>';
-
 	echo "<link rel='stylesheet' href='".$baseURL."assets/css/style.css?v=".$style_css_v."'>";
 }
 function hashPW($email,$pw){

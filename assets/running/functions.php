@@ -19,7 +19,8 @@ function getHead($title){
 
 	echo "<meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'><meta name='description' content='questionnare page.'><meta name='author' content='Malik Bensalem'><meta name='docsearch:language' content='en'><title>$title</title>";
 	echo "<link rel='stylesheet' href='".$baseURL."assets/css/bootstrap4.css'>";
-	echo "<link rel='stylesheet' href='".$baseURL."assets/css/font_awesome6.css' />";
+
+	echo '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />';
 	echo "<link rel='stylesheet' href='".$baseURL."assets/css/bootstrap_select.css'>";
 	echo "<script src='".$baseURL."assets/js/jquery.js'></script>";
 	echo "<script src='".$baseURL."assets/js/popper.js'></script>";

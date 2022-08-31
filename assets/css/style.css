@@ -22,3 +22,7 @@ label{
 td{
   vertical-align: middle !important;
 }
+.required:after {
+  content:" *";
+  color: red;
+}

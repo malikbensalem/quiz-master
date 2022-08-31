@@ -51,7 +51,7 @@ $_SESSION['user_level']='0';
 				</div>
 				<div class="row">
 					<div class="col-sm-12">
-						<label for="email">Email address</label>
+						<label for="email" class="required">Email address</label>
 						<input id="email" placeholder="Email" class="form-control">
 					</div>
 				</div>
@@ -59,13 +59,13 @@ $_SESSION['user_level']='0';
 				<div id="reg-rows" style="display:none">
 					<div class="row" >
 						<div class="col-sm-12">
-							<label for="first-name">First Name</label>
+							<label for="first-name" class="required">First Name</label>
 							<input id="first-name" placeholder="First name" class="form-control">
 						</div>
 					</div>
 					<div class="row">
 						<div class="col-sm-12">
-							<label for="last-name">Last Name</label>
+							<label for="last-name" class="required">Last Name</label>
 							<input id="last-name" placeholder="Last name" class="form-control">
 						</div>
 					</div>
@@ -73,7 +73,7 @@ $_SESSION['user_level']='0';
 
 				<div class="row">
 					<div class="col-sm-12">
-						<label for="password">Password</label>
+						<label for="password" class="required">Password</label>
 						<input type="password" id="password" placeholder="Password" class="form-control">
 					</div>
 				</div>
@@ -101,6 +101,47 @@ $_SESSION['user_level']='0';
 				$('#login').text('Register')
 				$('#login').data('login','register')	
 			}
+		})
+
+		$('#login').click(function(){
+			action=$(this).data('login')           	
+
+			if ($('#password').val().length<6){
+				timedAlert('#alert','<div class="alert alert-danger"> Password needs to be atleast 6 characters long.')
+            	return
+			}
+			if (action=='register' && ($('#first-name').val().length==''||$('#last-name').val().length=='')){
+				timedAlert('#alert','<div class="alert alert-danger"> User must have a first and last name.')
+				return
+			}
+			loginHtml = $(this).html();
+			$(this).addClass('disabled')
+
+			$(this).html('<i class="fa-solid fa-spinner fa-spin"></i>')
+
+
+			$.ajax({
+                method: 'POST',
+                url: 'verify.php',
+                data: {
+                    action:action,
+                    em:$('#email').val(),
+                    pw:$('#password').val(),
+                    fn:$('#first-name').val(),
+                    ln:$('#last-name').val(),
+                },
+                dataType: 'json',
+                success: function(data) {
+                	timedAlert('#alert',data.alert)
+                	if (data.result){
+                		timedRedirect('<?echo $baseURL?>questionnaire.php')
+                	}
+                	else{
+            			$('#login').removeClass('disabled')
+                		$('#login').html(loginHtml)
+                	}
+                }
+            })
 		})
 		</script>
 	</body>

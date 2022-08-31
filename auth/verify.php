@@ -1,6 +1,7 @@
 <?
 include $_SERVER['ROOT_PATH'].'assets/connection/dbc.php';
 if (isPost()){
+	$_POST = sanitize($_POST);
 	if ($_POST['action']=='login'){
 		$em=$_POST['em'];
 		$pw=hashPW($em,$_POST['pw']);
@@ -18,8 +19,8 @@ if (isPost()){
 	elseif ($_POST['action']=='register'){
 		$em=$_POST['em'];
 		$pw=hashPW($em,$_POST['pw']);
-		$fn=$_POST['fn'];
-		$ln=$_POST['ln'];
+		$fn=ucfirst($_POST['fn']);
+		$ln=ucfirst($_POST['ln']);
 
 		mysqli_query($mysqli,"INSERT INTO users (u_email,u_password,u_first_name,u_last_name) VALUES('$em','$pw','$fn','$ln')") or die(json_encode(['result'=>false,'alert'=>'<div class="alert alert-danger"> This email is already registered with us.</div>']));
 

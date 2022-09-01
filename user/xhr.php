@@ -21,6 +21,17 @@ if (isPost()){
 		mysqli_query($mysqli,"UPDATE `users` SET `u_ut_id` = '$type' WHERE `u_id` = $uid;");
 		die(json_encode(['result'=>true]));
 	}
+	elseif ($_POST['action']=='change_password'){
+		list($email)=mysqli_fetch_row(mysqli_query($mysqli,"SELECT u_email FROM users WHERE u_id=".$_SESSION['user_id']));
+		$old=hashPW($email,$_POST['old']);
+		$new=hashPW($email,$_POST['new']);
+		$matches=mysqli_query($mysqli,"SELECT u_id FROM users WHERE u_password='$old' AND u_id=".$_SESSION['user_id']) or die(json_encode(['result'=>false,'error'=>'500']));
+		if (mysqli_num_rows($matches)!=1){
+			die(json_encode(['result'=>false,'alert'=>'The current password is incorrect.']));
+		}
+		mysqli_query($mysqli,"UPDATE `users` SET `u_password` = '$new' WHERE `u_id` =".$_SESSION['user_id']) or die(json_encode(['result'=>false,'error'=>'500']));
+		die(json_encode(['result'=>true]));
+	}
 }
 elseif(isGet()){
 	$_GET=sanitize($_GET);
@@ -39,14 +50,18 @@ elseif(isGet()){
 		if (!hasAccess('2')){
 			die(json_encode(['result'=>false,'error'=>'401']));	
 		}
-		$sts=$_GET['sts']??'(SELECT ut_id FROM `user_type`)';
+		$sts=$_GET['sts']??'(SELECT ut_id FROM `users_type`)';
+		$id=isset($_GET['id'])?' AND u_id='.$_GET['id']:'';
 		$name=isset($_GET['name'])?' AND (CONCAT(u_first_name," ",u_last_name) LIKE "%'.$_GET['name'].'%" OR u_email LIKE "%'.$_GET['name'].'%") LIMIT 1':'';
-		$qu=mysqli_query($mysqli,"SELECT u_id,u_first_name,u_last_name FROM `users` WHERE u_us_id=1 AND u_ut_id in($sts) $name") or die(json_encode(['result'=>false,'error'=>'500']));
+		$qu=mysqli_query($mysqli,"SELECT u_id,u_first_name,u_last_name,ut_desc,u_email FROM `users` LEFT JOIN users_type ON ut_id=u_ut_id WHERE u_us_id=1 AND u_ut_id in($sts) $name $id") or die(json_encode(['result'=>false,'error'=>'500']));
 		$u=[];
+
 		while ($r=mysqli_fetch_assoc($qu)) {
 			$u[]=[
 				'id'=>$r['u_id'],
 				'name'=>$r['u_first_name'].' '.$r['u_last_name'],
+				'email'=>$r['u_email'],
+				'type'=>$r['ut_desc'],
 			];
 		}
 		die(json_encode(['result'=>$u!=[],'users'=>$u]));

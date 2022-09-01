@@ -34,8 +34,7 @@ if (!loggedin()){
 				</div>
 			</div>
 		</div>
-		<?
-		?>
+		
 		<?include $_SERVER['ROOT_PATH'].'assets/running/footer.php'?>
 		<script type="text/javascript">
 			

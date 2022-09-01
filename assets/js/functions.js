@@ -38,21 +38,6 @@ function getQuestionnaireCategories(){
     	}
     })
 }
-$('.disabled,.active').click(function(e){
-	e.preventDefault();
-	e.stopPropagation();
-	return
-})
-$('.table-responsive').on('show.bs.select', function () { 
-	$('.table-responsive').css( "overflow", "inherit" );
-	$('.bootstrap-table').css( "overflow", "inherit" ); 
-	$('.fixed-table-body').css( "overflow", "inherit" );     
-});
-$('#statuses button[data-btn-status]').click(function(){
-	$('#statuses button[data-btn-status]').removeClass('active')
-	$(this).addClass('active')
-})
-$('#statuses button[data-btn-status=1]').addClass('active')
 
 function loader(loading){
 	if (loading){
@@ -70,3 +55,22 @@ function isEmail(email){
    	else 
     	return false; 
 }
+
+$('.disabled,.active').click(function(e){
+	e.preventDefault();
+	e.stopPropagation();
+	return
+})
+$('.table-responsive').on('show.bs.select', function () { 
+	$('.table-responsive').css( "overflow", "inherit" );
+	$('.bootstrap-table').css( "overflow", "inherit" ); 
+	$('.fixed-table-body').css( "overflow", "inherit" );     
+});
+$('#statuses').on('click','button[data-btn-status]',function(){
+	$('#statuses button[data-btn-status]').removeClass('active')
+	$(this).addClass('active')
+	loader(true)
+})
+$(document).ready(function() {
+	$('#statuses button[data-btn-status=1]').addClass('active')
+});

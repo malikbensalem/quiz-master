@@ -104,6 +104,11 @@ $_SESSION['user_level']='0';
 				$('#login').data('login','register')	
 			}
 		})
+		 $('#password').keyup(function(e){
+		    if (e.keyCode === 13) {
+		      $('#login').click()
+		    }
+		  })
 
 		$('#login').click(function(){
 			action=$(this).data('login')           	

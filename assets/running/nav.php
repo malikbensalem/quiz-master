@@ -9,12 +9,16 @@ if (loggedin()){
 
     <div class="collapse navbar-collapse" id="navbarsExample04">
         <ul class="navbar-nav mr-auto">
+            <li class="nav-item"><a class="nav-link" href="#" data-toggle="modal" data-target="#account-modal">Account</a></li>
             <li class="nav-item"><a class="nav-link" href="<?echo $baseURL?>questionnaire#">Questionnaires</a></li>
             <li class="nav-item"><a class="nav-link" href="<?echo $baseURL?>results#">Results</a></li>
-            <?if ($_SESSION['user_level']>1){?><li class="nav-item"><a class="nav-link" href="<?echo $baseURL?>users#">Users</a></li><?}?>
+            <?if (hasAccess('2')){?><li class="nav-item"><a class="nav-link" href="<?echo $baseURL?>users#">Users</a></li><?}?>
         </ul>
         <a class="btn btn-outline-light btn-sm" href="<?echo $baseURL?>">Logout</a>
     </div>
 </nav>
 
-<?}?>
+<?
+include $_SERVER['ROOT_PATH'].'assets/modals/account_modal.php';
+
+}?>

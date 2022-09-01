@@ -9,7 +9,7 @@
         </button>
       </div>
       <div class="modal-body">
-      	<div id="modal-alert"></div>
+      	<div id="cem-alert"></div>
       	<div class="form-group">
       		<div class="input-group">
       			<div class="input-group-prepend">
@@ -86,21 +86,21 @@
         dataType: 'json',
         success: function(data) {
           if (data.result){
-            timedAlert('#modal-alert','<div class="alert alert-success">Successfully saved questionnaire</div>')
+            timedAlert('#cem-alert','<div class="alert alert-success">Successfully saved questionnaire</div>')
             setTimeout(function(){
               $('#create-edit-modal').modal('hide')
             }, 2000);
             return true
           }
           else{
-            timedAlert('#modal-alert','<div class="alert alert-danger">Could not save questionnaire</div>')
+            timedAlert('#cem-alert','<div class="alert alert-danger">Could not save questionnaire</div>')
           }
           return false
         }
       })
     }
     else{
-      timedAlert('#modal-alert','<div class="alert alert-danger">Cannot save without a title</div>')      
+      timedAlert('#cem-alert','<div class="alert alert-danger">Cannot save without a title</div>')      
       return false
     }
 	}

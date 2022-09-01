@@ -12,7 +12,7 @@
       	<div class="form-group">
       		<div class="input-group">
       			<div class="input-group-prepend">
-	      			<div class="input-group-text">Student</div>		
+	      			<div class="input-group-text">Person</div>		
 	      		</div>
       			<input id="uam-student" class="form-control">		
             <div class="input-group-append">
@@ -33,10 +33,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <div>
-          
         <button type="button" class="btn btn-light mr-auto" data-dismiss="modal">Close</button>
-        </div>
         <button type="button" class="btn btn-success" id="uam-save">Save</button>
       </div>
     </div>
@@ -48,7 +45,7 @@
     if ($('#uam-student').val()){
       $.ajax({
         method: 'GET',
-        url: 'xhr.php',
+        url: '<?echo $baseURL?>user/xhr.php',
         data: {
             action:'get_users',
             name:$('#uam-student').val(),
@@ -81,7 +78,7 @@
     })
     $.ajax({
       method: 'POST',
-      url: 'xhr.php',
+      url: '<?echo $baseURL?>user/xhr.php',
       data: {
         action:'user_assignee',
         qid:$('#user-assign-modal').data('qid'),
@@ -90,16 +87,22 @@
       dataType: 'json',
       success: function(data) {
         if (data.result){
+          timedAlert('#uam-alert','<div class="alert alert-success>Successfully modified assignees.</div>"')
         }
       }
     })
+  })
+  $('#uam-student').keyup(function(e){
+    if (e.keyCode === 13) {
+      $('#uam-search').click()
+    }
   })
 
   function getAssignees(qid){
     $('#uam-tbl tbody').html('')
     $.ajax({
       method: 'GET',
-      url: 'xhr.php',
+      url: '<?echo $baseURL?>user/xhr.php',
       data: {
         action:'get_user_assignee',
         qid:qid,

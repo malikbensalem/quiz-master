@@ -8,8 +8,10 @@
 </div>
 
 <?
+
 $functions_js_v=md5_file($_SERVER['ROOT_PATH'].'assets/js/functions.js');
 ?>
 
+<script src="<?echo $baseURL?>assets/js/inputmask.js"></script>
 <script src='<?echo $baseURL?>assets/js/functions.js?v=<?echo $functions_js_v?>'></script>
 

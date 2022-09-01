@@ -29,9 +29,10 @@ if (isPost()){
 }
 function setUserSession($em,$pw){
 	global $mysqli;
-	$noUser=mysqli_query($mysqli,"SELECT u_id,u_us_id,u_ut_id FROM users WHERE u_email='$em' AND u_password='$pw'");
+	$noUser=mysqli_query($mysqli,"SELECT u_id,u_us_id,ut_level FROM users LEFT JOIN users_type ON u_ut_id=ut_id WHERE u_email='$em' AND u_password='$pw'");
+
 	if (mysqli_num_rows($noUser)==0){
-		return fasle; 
+		return false; 
 	}
 	list($_SESSION['user_id'],$sts,$_SESSION['user_level'])=mysqli_fetch_row($noUser);
 	return $sts;

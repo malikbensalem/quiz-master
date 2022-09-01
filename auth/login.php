@@ -52,7 +52,7 @@ $_SESSION['user_level']='0';
 				<div class="row">
 					<div class="col-sm-12">
 						<label for="email" class="required">Email address</label>
-						<input id="email" placeholder="Email" class="form-control">
+						<input id="email" placeholder="Email" data-inputmask="'alias': 'email'" class="form-control">
 					</div>
 				</div>
 				
@@ -87,6 +87,8 @@ $_SESSION['user_level']='0';
 			</div>
 			<div class="col-xl-9 col-lg-8 d-none d-lg-block" id='hero-img'></div>
 		</div>
+
+		<script src="<?echo $baseURL?>assets/js/inputmask.js"></script>
 		<script type="text/javascript" src="<?echo $baseURL?>assets/js/functions.js"></script>
 		<script type="text/javascript">
 		$('#register').click(function(){
@@ -114,6 +116,11 @@ $_SESSION['user_level']='0';
 				timedAlert('#alert','<div class="alert alert-danger"> User must have a first and last name.')
 				return
 			}
+			if (!isEmail($('#email').val())){
+				timedAlert('#alert','<div class="alert alert-danger"> Please enter a valid email address.')
+				return 
+			}
+
 			loginHtml = $(this).html();
 			$(this).addClass('disabled')
 

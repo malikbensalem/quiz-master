@@ -6,8 +6,8 @@ if (!loggedin()){
 if (isPost()){
 	$_POST=sanitize($_POST);
 	if ($_POST['action']=='save_questionnaire'){
-		if ($_SESSION['user_level']<2){
-			die(json_encode(['result'=>false]));
+		if (!hasAccess('3')){
+			die(json_encode(['result'=>false,'error'=>'401']));			
 		}
 		$id=$_POST['id']??0;
 		$title=$_POST['title'];
@@ -17,6 +17,28 @@ if (isPost()){
 			mysqli_query($mysqli,"UPDATE question_header SET qh_title='$title',qh_qc_id='".str_replace('"','',json_encode($cat))."',qh_qs_id=$sts WHERE qh_id=$id") or die (json_encode(['result'=>false]));
 		}else{
 			mysqli_query($mysqli,"INSERT INTO question_header (qh_title,qh_u_id,qh_qc_id,qh_qs_id) VALUES('$title','".$_SESSION['user_id']."','".json_encode($cat)."',$sts)") or die (json_encode(['result'=>false]));
+		}
+		die (json_encode(['result'=>true]));
+	}
+	elseif ($_POST['action']=='save_questionnaire_questions'){
+		if (!hasAccess('3')){
+			die(json_encode(['result'=>false,'error'=>'401']));	
+		}
+		$qid=$_POST['id'];
+		$title=$_POST['title'];
+		$cats=isset($_POST['cats'])?'['.implode(',', $_POST['cats']).']':'[]';
+		$sts=$_POST['status'];
+		$pass=$_POST['pass'];
+		mysqli_query($mysqli,"UPDATE question_header SET qh_title='$title',qh_qc_id='$cats',qh_pass=$pass WHERE qh_id=$qid");
+
+		$questions=$_POST['questions']??[];
+		mysqli_query($mysqli,"UPDATE question_line SET ql_qs_id='3' WHERE ql_qh_id=$qid");
+		foreach ($questions as $q) {
+			$q['id']=isset($q['id'])?$q['id']:'null';
+
+			$q['options']=isset($q['options'])?json_encode( $q['options']):[];
+
+			mysqli_query($mysqli,"INSERT INTO question_line (ql_id,ql_qh_id,ql_title,ql_options,ql_mark) VALUES (".$q['id'].",$qid,'".$q['title']."','".$q['options']."','".$q['mark']."') ON DUPLICATE KEY UPDATE ql_title='".$q['title']."',ql_options='".$q['options']."', ql_mark='".$q['mark']."'  ,ql_qs_id=1");
 		}
 		die (json_encode(['result'=>true]));
 	}
@@ -66,7 +88,7 @@ elseif (isGet()){
 			}
 		}
 
-		$qq=mysqli_query($mysqli,"SELECT qh_u_id,qh_id,qh_title,qh_pass,qh_pass>=(SELECT max(uqh_score) FROM users_question_header WHERE uqh_u_id=".$_SESSION['user_id'].") as qh_passed, CONCAT(u_first_name,' ',u_last_name) as f_name,GROUP_CONCAT(qc_id SEPARATOR ', ') as c_id ,GROUP_CONCAT(qc_desc SEPARATOR ', ') as c_desc FROM question_header LEFT JOIN question_category ON JSON_CONTAINS(qh_qc_id, CAST(qc_id as JSON), '\$') LEFT JOIN question_header_assignee ON qha_qh_id=qh_id LEFT JOIN users ON u_id=qha_u_id LEFT JOIN users_question_header ON u_id=uqh_id WHERE qh_qs_id in ($sts) $cond $cats GROUP BY qh_id") or die(json_encode(['result'=>false, 'error'=>500]));
+		$qq=mysqli_query($mysqli,"SELECT qh_u_id,DATE_FORMAT(qh_end_date, '%m/%d/%Y') as qh_end_date,qh_id,qh_title,qh_pass,qh_pass>=(SELECT max(uqh_score) FROM users_question_header WHERE uqh_u_id=".$_SESSION['user_id'].") as qh_passed, CONCAT(u_first_name,' ',u_last_name) as f_name,GROUP_CONCAT(qc_id SEPARATOR ', ') as c_id ,GROUP_CONCAT(qc_desc SEPARATOR ', ') as c_desc FROM question_header LEFT JOIN question_category ON JSON_CONTAINS(qh_qc_id, CAST(qc_id as JSON), '\$') LEFT JOIN question_header_assignee ON qha_qh_id=qh_id LEFT JOIN users ON u_id=qha_u_id LEFT JOIN users_question_header ON u_id=uqh_id WHERE qh_qs_id in ($sts) $cond $cats GROUP BY qh_id") or die(json_encode(['result'=>false, 'error'=>500]));
 
 		while ($r=mysqli_fetch_assoc($qq)){	
 			$owned = mysqli_fetch_row(mysqli_query($mysqli,"SELECT u_first_name,u_last_name FROM users WHERE u_id=".$r['qh_u_id']));
@@ -80,11 +102,27 @@ elseif (isGet()){
 				'pass'=>$r['qh_pass'],
 				'passed'=>$r['qh_passed']??'0',
 				'assigned'=>$r['f_name']??'',
+				'deadline'=>$r['qh_end_date']??'',
 				'owned'=>$owned??'',
 			];
 		}
-
 		die(json_encode(['result'=>$qas!=[],'quest'=>$qas]));
+	}
+	elseif($_GET['action']=='get_questionnaire_and_answers'){
+		$qid=$_GET['id'];
+
+		list($title,$pass)=mysqli_fetch_row(mysqli_query($mysqli,"SELECT qh_title,qh_pass FROM `question_header` WHERE qh_id=$qid")) or die(json_encode(['result'=>false, 'error'=>'500']));
+		$qql=mysqli_query($mysqli,"SELECT ql_id,ql_title,ql_options,ql_mark FROM `question_line` WHERE ql_qh_id=$qid AND ql_qs_id=1") or die(json_encode(['result'=>false, 'error'=>'500']));
+		$ql=[];
+		while($r=mysqli_fetch_assoc($qql)){
+			$ql[]=[
+				'id'=>$r['ql_id'],
+				'title'=>$r['ql_title'],
+				'options'=>json_decode($r['ql_options']),
+				'mark'=>$r['ql_mark'],
+			];
+		}
+		die(json_encode(['result'=>true,'questions'=>$ql,'title'=>$title,'pass'=>$pass]));
 	}
 }
 

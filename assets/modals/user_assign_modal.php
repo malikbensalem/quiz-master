@@ -14,7 +14,7 @@
       			<div class="input-group-prepend">
 	      			<div class="input-group-text">Person</div>		
 	      		</div>
-      			<input id="uam-student" class="form-control">		
+      			<input id="uam-student" class="form-control" placeholder="Name or email">		
             <div class="input-group-append">
               <button class="btn btn-outline-dark" id="uam-search"><i class="fa-solid fa-magnifying-glass"></i></button>
             </div>
@@ -87,7 +87,8 @@
       dataType: 'json',
       success: function(data) {
         if (data.result){
-          timedAlert('#uam-alert','<div class="alert alert-success>Successfully modified assignees.</div>"')
+          timedAlert('#uam-alert','<div class="alert alert-success">Successfully modified assignees.</div>"')
+
         }
       }
     })
@@ -111,7 +112,7 @@
       success: function(data) {
         if (data.result){
           data.users.forEach(function(u){
-            $('#uam-tbl tbody').append('<tr data-uid='+u.uid+'><td>'+u.uname+'</td><td>'+u.aname+'</td><td>'+u.date+'</td><td> <input type="date" class="form-control" data-date value="'+u.deadline+'"></td><td>'+u.attempts+'</td><td>'+u.best+'</td><td>'+(u.passed==1?'<i class="fa-solid fa-check"></i>':'<i class="fa-solid fa-x"></i>')+'</td><td><button data-remove class="btn btn-danger"><i class="fa-regular fa-trash-can" data-remove></i></button></td></tr>')
+            $('#uam-tbl tbody').append('<tr data-uid='+u.uid+'><td>'+u.uname+'</td><td>'+u.aname+'</td><td>'+u.date+'</td><td> <input type="date" class="form-control" data-date value="'+u.deadline+'"></td><td>'+u.attempts+'</td><td>'+(u.passed==1?'<i class="fa-solid fa-check"></i>':'<i class="fa-solid fa-x"></i>')+'</td><td>'+u.best??'0'+'</td><td><button data-remove class="btn btn-danger"><i class="fa-regular fa-trash-can" data-remove></i></button></td></tr>')
           })
         }
         else{

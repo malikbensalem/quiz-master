@@ -31,13 +31,13 @@
         <div class="row">
           <div class="col-md-12">
             <label class="required" for="am-password-old">Current password</label>
-            <input class="form-control btn-block" type="password" id="am-password-old">
+            <input class="form-control btn-block" type="password" id="am-password-old" placeholder="Old password">
           </div>
         </div>
         <div class="row">
           <div class="col-md-12">
             <label class="required" for="am-password-new" >New password</label>
-            <input class="form-control btn-block" type="password" id="am-password-new">
+            <input class="form-control btn-block" type="password" id="am-password-new" placeholder="New password">
           </div>
         </div>
       </div>

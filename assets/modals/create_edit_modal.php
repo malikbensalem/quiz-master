@@ -15,7 +15,7 @@
       			<div class="input-group-prepend">
 	      			<div class="input-group-text">Title</div>		
 	      		</div>
-      			<input id="cem-title" class="form-control">		
+      			<input id="cem-title" class="form-control" placeholder="Questionnaire title">		
       		</div>
       	</div>
       	<div class="form-group">
@@ -90,6 +90,7 @@
             setTimeout(function(){
               $('#create-edit-modal').modal('hide')
             }, 2000);
+
             return true
           }
           else{
@@ -109,5 +110,6 @@
     $('#cem-questions').hide()
     $('#create-edit-modal').modal('show')
   })
+  $('#statuses button[data-btn-status]').click()
 
 </script>

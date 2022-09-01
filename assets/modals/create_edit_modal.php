@@ -46,7 +46,7 @@
       	</div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-light float-left" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-light mr-auto" data-dismiss="modal">Close</button>
         <button type="button" class="btn btn-info" id="cem-questions">Modify Questions</button>
         <button type="button" class="btn btn-success" id="cem-save">Save changes</button>
       </div>
@@ -57,7 +57,7 @@
 <script>
 
 	$('#cem-questions').click(function(){
-    window.location='edit_questions?id='+$('#cem-save').data('id')    
+    window.location='<?echo $baseURL?>questionnaire/edit_questionnaire?id='+$('#cem-save').data('id')    
 	})
   
 	$('#cem-save').click(function(){

@@ -35,7 +35,7 @@
       <div class="modal-footer">
         <div>
           
-        <button type="button" class="btn btn-light float-left pull-left" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-light mr-auto" data-dismiss="modal">Close</button>
         </div>
         <button type="button" class="btn btn-success" id="uam-save">Save</button>
       </div>

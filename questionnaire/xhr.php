@@ -42,6 +42,22 @@ if (isPost()){
 		}
 		die (json_encode(['result'=>true]));
 	}
+	elseif ($_POST['action']=='submit_questionnaire_answers'){
+		$qid=$_POST['id'];
+		$quests=$_POST['quests'];
+
+		$conds='';
+		foreach ($quests as $q) {
+			$conds.=" OR JSON_OVERLAPS(ql_options, '{\"title\": \"".$q['ans']."\",\"correct\": \"true\"}')";
+		}
+		$conds=substr($conds, 3);
+
+		list($score)=mysqli_fetch_row(mysqli_query($mysqli,"SELECT count(ql_id) FROM question_line WHERE ql_qh_id=$qid AND ($conds) "));
+		
+		mysqli_query($mysqli,"INSERT INTO users_question_header (uqh_u_id,uqh_qh_id,uqh_score,uqh_total) VALUES (".$_SESSION['user_id'].",$qid,$score,".count($quests).")");
+
+		die(json_encode(['result'=>true]));
+	}
 }
 elseif (isGet()){
 	$_GET=sanitize($_GET);
@@ -124,6 +140,30 @@ elseif (isGet()){
 		}
 		die(json_encode(['result'=>true,'questions'=>$ql,'title'=>$title,'pass'=>$pass]));
 	}
+	elseif ($_GET['action']=='get_questionnaire'){
+		$qid=$_GET['id'];
+		list($title)=mysqli_fetch_row(mysqli_query($mysqli,"SELECT qh_title FROM question_header WHERE qh_id=$qid")) or die(json_encode(['result'=>false]));
+
+		$qql=mysqli_query($mysqli,"SELECT ql_id,ql_title,ql_options FROM `question_line` WHERE ql_qh_id=$qid AND ql_qh_id") or die(json_encode(['result'=>false]));
+
+		$ql=[];
+
+		while ($r=mysqli_fetch_assoc($qql)) {
+			$opt=[];
+			foreach (json_decode($r['ql_options'],true) as $value) {
+				$opt[]=$value['title'];
+			}
+
+			$ql[]=[
+				'id'=>$r['ql_id'],
+				'title'=>$r['ql_title'],
+
+				'options'=>$opt,
+			];
+		}
+		die(json_encode(['result'=>true,'title'=>$title,'questions'=>$ql]));
+	}
+
 }
 
 die(json_encode(['result'=>false,'error'=>'404']));

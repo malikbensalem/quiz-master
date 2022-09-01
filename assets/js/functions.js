@@ -18,26 +18,6 @@ function timedRedirect(link,time=2500){
 function emptyTableMsg(ele,msg){
 	$(ele).html('<tr><td class="text-center" colspan="100%">'+msg+'</td></tr>')
 }
-function getQuestionnaireCategories(){
-	$.ajax({
-        method: 'GET',
-        url: 'xhr.php',
-        data: {
-            action:'get_questionnaire_categories',
-        },
-        dataType: 'json',
-        success: function(data) {
-        	if (data.result){
-        		data.cats.forEach(function(c){
-            		$('#category-filter').append($('<option>', {
-					    value: c.id,
-					    text: c.desc,
-					}));
-        		})
-        	}
-    	}
-    })
-}
 
 function loader(loading){
 	if (loading){
@@ -54,6 +34,17 @@ function isEmail(email){
     	return true; 
    	else 
     	return false; 
+}
+
+function questionMaker(id,title,options){
+	quest='<div class="card" data-id='+id+'><div class="card-header"><h3>'+title+'</h3></div><div class="card-body">'
+	count=1
+	options.forEach(function(o){
+		quest+='<button class="btn btn-outline-dark btn-block" data-option>'+alpha[count]+'. '+o+'</button>'
+		count++
+	})
+	quest+='</div></div>'
+	$('#questions').append(quest)
 }
 
 $('.disabled,.active').click(function(e){
@@ -74,3 +65,31 @@ $('#statuses').on('click','button[data-btn-status]',function(){
 $(document).ready(function() {
 	$('#statuses button[data-btn-status=1]').addClass('active')
 });
+alpha={
+	'1':'A',
+	'2':'B',
+	'3':'C',
+	'4':'D',
+	'5':'E',
+	'6':'F',
+	'7':'G',
+	'8':'H',
+	'9':'I',
+	'10':'J',
+	'11':'K',
+	'12':'L',
+	'13':'M',
+	'14':'N',
+	'15':'O',
+	'16':'P',
+	'17':'Q',
+	'18':'R',
+	'19':'S',
+	'20':'T',
+	'21':'U',
+	'22':'V',
+	'23':'W',
+	'24':'X',
+	'25':'Y',
+	'26':'Z',
+}

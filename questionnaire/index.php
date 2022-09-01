@@ -62,19 +62,36 @@ if (!loggedin()){
 			</div>
 		</div>
 
-
 		<?if ($_SESSION['user_level']>1){
 			include $_SERVER['ROOT_PATH']."assets/modals/user_assign_modal.php";
 			include $_SERVER['ROOT_PATH']."assets/modals/create_edit_modal.php";
 		}?>
-		<!-- Modal -->
 		
 		<?include $_SERVER['ROOT_PATH'].'assets/running/footer.php'?>
 		<script type="text/javascript">
 			getQuestionnaires(1)
 			getQuestionnaireCategories()
+			function getQuestionnaireCategories(){
+				$.ajax({
+			        method: 'GET',
+			        url: 'xhr.php',
+			        data: {
+			            action:'get_questionnaire_categories',
+			        },
+			        dataType: 'json',
+			        success: function(data) {
+			        	if (data.result){
+			        		data.cats.forEach(function(c){
+			            		$('#category-filter').append($('<option>', {
+								    value: c.id,
+								    text: c.desc,
+								}));
+			        		})
+			        	}
+			    	}
+			    })
+			}
 			function getQuestionnaires(sts,cat=[],assign=1,complete=1){
-
 				loader(true)
 				$.ajax({
 	                method: 'GET',
@@ -92,7 +109,7 @@ if (!loggedin()){
 	                	if (data.result){
 	                		
 	                		data.quest.forEach(function(q){
-								$('#tbl-questionnaire tbody').append('<tr data-id='+q.id+'><td data-title>'+q.title+'</td><td data-cat="'+q.cid+'">'+q.cat+'</td><?if ($_SESSION['user_level']==1){?><td>'+(q.passed==1?'<i class="fa-solid fa-check"></i>':'<i class="fa-solid fa-x"></i>')+'<?}?></td><td>'+q.assigned+'</td><td>'+q.deadline+'</td><?if(hasAccess('2')){?><td>'+q.owned+'</td><?}?><td><div class="btn-group"><?if (hasAccess('2')){?><button class="btn btn-light" data-edit title="Edit"><i class="fa-regular fa-pen-to-square"></i></button><button class="btn btn-dark" data-users title="Assignees"><i class="fa-solid fa-users"></i></button><?}?> <a href="show_questions?id='+q.id+'" class="btn btn-primary" title="Start"><i class="fa-solid fa-play"></i></a></div></td></tr>')
+								$('#tbl-questionnaire tbody').append('<tr data-id='+q.id+'><td data-title>'+q.title+'</td><td data-cat="'+q.cid+'">'+q.cat+'</td><?if ($_SESSION['user_level']==1){?><td>'+(q.passed==1?'<i class="fa-solid fa-check"></i>':'<i class="fa-solid fa-x"></i>')+'<?}?></td><td>'+q.assigned+'</td><td>'+q.deadline+'</td><?if(hasAccess('2')){?><td>'+q.owned+'</td><?}?><td><div class="btn-group"><?if (hasAccess('2')){?><button class="btn btn-light" data-edit title="Edit"><i class="fa-regular fa-pen-to-square"></i></button><button class="btn btn-dark" data-users title="Assignees"><i class="fa-solid fa-users"></i></button><?}?> <a href="show_questionnaire?id='+q.id+'" class="btn btn-primary" title="Start"><i class="fa-solid fa-play"></i></a></div></td></tr>')
 	                		})
 	                	}
 	                	else{
@@ -134,8 +151,7 @@ if (!loggedin()){
 				$('#cem-questions').show()
 				$('#create-edit-modal').modal('show')
 			})
-			<?}?>
-			
+			<?}?>	
 		</script>
 	</body>
 </html>

@@ -236,7 +236,7 @@ if (!$qid){
 			})
 
 			$('#add-question').click(function(){
-				$('#questions').append('<div class="card" data-question><div class="card-header"><label class="required">Question title:</label><h3 data-title contenteditable="true"></h3><label>Mark<input data-mark class="form-control form-control-sm"></label></div><div class="card-body"><label>Options:</label><div class="form-group input-group" data-option=""><input class="form-control" data-option-desc=""><div class="input-group-append"><button class="btn btn-outline-success" data-option-correct="">Correct</button></div></div></div><div class="card-footer"><button class="btn btn-danger" data-remove>Remove question</button><button class="btn btn-dark float-right" data-add-option>Add options</button></div></div>')
+				$('#questions').append('<div class="card" data-question><div class="card-header"><label class="required">Question title:</label><h3 data-title contenteditable="true"></h3><label>Mark<input data-mark class="form-control form-control-sm"></label></div><div class="card-body"><label>Options:</label><div class="form-group" data-option><label>A.</label><div class="input-group"><input class="form-control" data-option-desc><div class="input-group-append"><button class="btn btn-outline-success" data-option-correct>Correct</button></div></div></div><div class="form-group" data-option><label>B.</label><div class="input-group"><input class="form-control" data-option-desc><div class="input-group-append"><button class="btn btn-outline-success" data-option-correct>Correct</button></div></div></div><div class="form-group" data-option><label>C.</label><div class="input-group"><input class="form-control" data-option-desc><div class="input-group-append"><button class="btn btn-outline-success" data-option-correct>Correct</button></div></div></div></div><div class="card-footer"><button class="btn btn-danger" data-remove>Remove question</button><button class="btn btn-dark float-right" data-add-option>Add options</button></div></div>')
 
 				Inputmask({ alias: 'positive'}).mask('input[data-mark]');
 			})
@@ -248,9 +248,9 @@ if (!$qid){
 			}
 			function questionAnswerMaker(id,title,options,mark){
 				quest='<div class="card" data-question data-id='+id+'><div class="card-header"><label class="required">Question title:</label><h3 data-title contenteditable="true">'+title+'</h3><label>Mark<input value="'+mark+'" data-mark class="form-control form-control-sm"></label></div> <div class="card-body"><label>Options:</label>'
-				count=0;
+				count=1;
 				options.forEach(function(o){
-					quest+='<div class="form-group input-group" data-option><input class="form-control" data-option-desc value="'+o.title+'"><div class="input-group-append"><button class="btn btn-outline-success '+(o.correct=='true'?'active':'')+'" data-option-correct>Correct</button>'+(count!=0?'<button class="btn btn-danger" data-remove>Remove</button>':'')+'</div></div>'
+					quest+='<div class="form-group" data-option><label>'+alpha[count]+'.</label><div class="input-group"><input class="form-control" data-option-desc value="'+o.title+'"><div class="input-group-append"><button class="btn btn-outline-success '+(o.correct=='true'?'active':'')+'" data-option-correct>Correct</button>'+(count>3?'<button class="btn btn-danger" data-remove>Remove</button>':'')+'</div></div></div>'
 					count++
 				})
 				quest+='</div><div class="card-footer"><button class="btn btn-danger" data-remove>Remove question</button><button class="btn btn-dark float-right" data-add-option>Add options</button></div></div></div>'
@@ -302,14 +302,25 @@ if (!$qid){
 				$(this).addClass('active')
 			})
 			$('#questions').on('click','.card .card-body button[data-remove]',function(){
+				$(this).parents('.card').find('.card-footer button[data-add-option]').removeAttr('disabled')
+				let options= $(this).parents('.card')
 				$(this).parents('.form-group').remove()
+				options.find('.card-body div[data-option]').each(function(e){
+					$(this).find('label').text(alpha[e+1]+'.')	
+				})
 			})
 			$('#questions').on('click','.card .card-footer button[data-remove]',function(){
 				$(this).parents('.card').remove()
 				$('#questionnaire-total').val(totalMarks());
 			})
 			$('#questions').on('click','.card .card-footer button[data-add-option]',function(){
-				$(this).parents('.card').find('.card-body').append('<div class="form-group input-group" data-option><input class="form-control" data-option-desc><div class="input-group-append"><button class="btn btn-outline-success" data-option-correct>Correct</button><button class="btn btn-danger" data-remove>Remove</button></div></div>')
+				let amount=$(this).parents('.card').find('.card-body').find('div[data-option]').length;
+				if (amount>3){
+					$(this).attr('disabled','true')
+				}
+
+				$(this).parents('.card').find('.card-body').append('<div class="form-group" data-option><label>'+alpha[amount+1]+'.</label><div class="input-group"><input class="form-control" data-option-desc><div class="input-group-append"><button class="btn btn-outline-success" data-option-correct>Correct</button><button class="btn btn-danger" data-remove>Remove</button></div></div></div>')
+				
 			})
 
 			$('button[data-btn-status]').click(function(){

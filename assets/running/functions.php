@@ -13,6 +13,9 @@ function isGet(){
 function isPost(){
 	return $_SERVER['REQUEST_METHOD'] === 'POST';
 }
+function hasAccess($level){
+	return $_SESSION['user_level']>=$level;
+}
 function getHead($title){
 	global $baseURL;
 	$style_css_v=md5_file($_SERVER['ROOT_PATH']."assets/css/style.css");
@@ -52,7 +55,7 @@ function breadcrumbs($active=[],$text=[]){
 	if (loggedin()){
 		echo '<a data-questionnaire href="'.$baseURL.'questionnaire/" class="btn btn-lg btn-block btn-outline-dark" >Questionnaires</a>
 		<a data-results href="'.$baseURL.'results.php" class="btn btn-lg btn-block btn-outline-dark">See Results</a>
-		'.($_SESSION['user_level']>1?'<a data-users href="'.$baseURL.'users.php" class="btn btn-lg btn-block btn-outline-dark">'.($_SESSION['user_level']>1?"View":'Manage').' users</a>':'');
+		'.($_SESSION['user_level']>1?'<a data-users href="'.$baseURL.'user/" class="btn btn-lg btn-block btn-outline-dark">'.($_SESSION['user_level']>1?"View":'Manage').' users</a>':'');
 	}
 	else{
 		echo '<a data-questionnaire href="'.$baseURL.'" class="btn btn-lg btn-block btn-outline-dark" >Home</a>

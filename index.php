@@ -7,7 +7,7 @@ $_SESSION['user_level']='0';
 <!DOCTYPE html>
 <html lang="en">
     <head>
-		<?getHead('Login Page')?>
+		<?getHead('Login')?>
 
     </head>
     <body>
@@ -24,7 +24,7 @@ $_SESSION['user_level']='0';
                 <div class="col-lg-6">
                     <h2>About</h2>
                     
-                    <p> WebbiSkools Ltd provides on-line educational solutions to commercial and government clients, such as universities and training departments of large industrial companies.</p>
+                    <p> WebbiSkools Ltd provides on-line educational solutions to commercial and government clients, such as universities and training departments of large industrial companies. This website enables the creation and management of questionnaires consisting of multiple-choice questions</p>
                 </div>
             </div>
         </div>

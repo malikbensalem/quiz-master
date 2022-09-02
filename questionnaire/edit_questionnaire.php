@@ -3,18 +3,20 @@ include $_SERVER['ROOT_PATH'].'assets/connection/dbc.php';
 
 
 $qid=$_GET['id']??'0';
-if (!loggedin()){
+if (!loggedin()||!hasAccess('2')){
 	include $baseURL."assets/errors/401.php";
 }
-if (!$qid){
-	header('Location: ./');
+$noContent = mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM `question_header` WHERE qh_id='$qid'"))==0;
+if ($noContent){
+	include ($_SERVER['ROOT_PATH'].'assets/errors/204.php');
+	die();
 }
 
 ?>
 
 <html>
 	<head>
-		<?getHead('Questionnaire Page')?>
+		<?getHead('Edit questionnaire')?>
 		<style type="text/css">
 			.card{
 				margin-bottom: 20px;
@@ -29,7 +31,7 @@ if (!$qid){
 				<div class="col-md-4">
 					<?breadcrumbs(['questionnaire'],['questionnaire'=>'Edit Questionnaire'])?>
 				</div>
-				<div class="col-md-8">
+				<div class="col-md-8" id="questionnaire-all">
 					<label class="required">Questionnaire title</label><h1 id="questionnaire-title" contenteditable="true"></h1><br>
 					<div class="form-group">
 			      		<div class="input-group">
@@ -67,7 +69,7 @@ if (!$qid){
 					<div id="questions">
 					</div>
 					<br>
-					<div class="row">
+					<div class="row" id="action-questionnaire">
 						<div class="col-md-4">
 							<a href="#" class="text-danger" id="delete-questionnaire">Delete questionnaire</a>	
 						</div>
@@ -135,33 +137,33 @@ if (!$qid){
 		<script type="text/javascript">
 			getQuestionnaire(<?echo $qid?>)
 			getQuestionnaireCategories(<?echo $qid?>)
+			
+
 			function getQuestionnaireCategories(id){
-				$.ajax({
-	                method: 'GET',
+				ajax({
+					method: 'GET',
 	                url: 'xhr.php',
 	                data: {
 	                    action:'get_questionnaire_categories',
 	                    id:id,
 	                },
 	                dataType: 'json',
-	                success: function(data) {
-	                	if (data.result){
-	                		data.cats.forEach(function(cat){
-	                			selected=''
-	                			if (data.selCats!='[]'){
-
-		                			data.selCats.forEach(function(sc){
-			                			if (sc==cat.id){
-				                			selected='selected'
-			                			}
-			                		})
-	                			}
-		                		$('#questionnaire-cats').append('<option value="'+cat.id+'" '+selected+'>'+cat.desc+'</option>')
-	                		})
-	                		$('.selectpicker').selectpicker('refresh')
-	                	}
-	                }
-	            })   
+				},function(data){
+					if (data.result){
+                		data.cats.forEach(function(cat){
+                			selected=''
+                			if (data.selCats!='[]'){
+	                			data.selCats.forEach(function(sc){
+		                			if (sc==cat.id){
+			                			selected='selected'
+		                			}
+		                		})
+                			}
+	                		$('#questionnaire-cats').append('<option value="'+cat.id+'" '+selected+'>'+cat.desc+'</option>')
+                		})
+                		$('.selectpicker').selectpicker('refresh')
+                	}
+				})   
 			}
 
 			$('#questionnaire-pass').keyup(function(){
@@ -194,14 +196,19 @@ if (!$qid){
 					if ($(this).find('h3[data-title]').text()==''){
 						complete=false
 			            timedModal('#quest-modal')
-						return
+						return false
 					}
+					oneCorrect=false
 					options.forEach(function(o){
-						if (o.correct==false){
-				            timedModal('#quest-modal')
+						if (o.correct==true){
+							oneCorrect=true
 						}
 						return false
 					})
+					if (!oneCorrect){
+						complete=false
+			            timedModal('#quest-modal')
+					}
 
 					questions.push({
 						'id':$(this).data('id'),
@@ -211,8 +218,8 @@ if (!$qid){
 					})
 				})
 				if (complete){
-					$.ajax({
-		                method: 'POST',
+					ajax({
+						method: 'POST',
 		                url: 'xhr.php',
 		                data: {
 		                    action:'save_questionnaire_questions',
@@ -224,15 +231,13 @@ if (!$qid){
 		                    questions:questions
 		                },
 		                dataType: 'json',
-		                success: function(data) {
-		                	if (data.result){
-		                		$('#save-modal').modal('show')
-		                		timedRedirect('index.php')
-		                	}
-		                }
-	                })	       			
+					},function(data){
+						if (data.result){
+	                		$('#save-modal').modal('show')
+	                		timedRedirect('index.php')
+	                	}
+					})      			
 				}
-
 			})
 
 			$('#add-question').click(function(){
@@ -250,7 +255,7 @@ if (!$qid){
 				quest='<div class="card" data-question data-id='+id+'><div class="card-header"><label class="required">Question title:</label><h3 data-title contenteditable="true">'+title+'</h3><label>Mark<input value="'+mark+'" data-mark class="form-control form-control-sm"></label></div> <div class="card-body"><label>Options:</label>'
 				count=1;
 				options.forEach(function(o){
-					quest+='<div class="form-group" data-option><label>'+alpha[count]+'.</label><div class="input-group"><input class="form-control" data-option-desc value="'+o.title+'"><div class="input-group-append"><button class="btn btn-outline-success '+(o.correct=='true'?'active':'')+'" data-option-correct>Correct</button>'+(count>3?'<button class="btn btn-danger" data-remove>Remove</button>':'')+'</div></div></div>'
+					quest+='<div class="form-group" data-option><label>'+alpha[count]+'.</label><div class="input-group"><input class="form-control" data-option-desc value="'+o.title+'"><div class="input-group-append">'+(count>3?'<button class="btn btn-danger" data-remove>Remove</button>':'')+'<button class="btn btn-outline-success '+(o.correct=='true'?'active':'')+'" data-option-correct>Correct</button></div></div></div>'
 					count++
 				})
 				quest+='</div><div class="card-footer"><button class="btn btn-danger" data-remove>Remove question</button><button class="btn btn-dark float-right" data-add-option>Add options</button></div></div></div>'
@@ -260,25 +265,35 @@ if (!$qid){
 			}
 
 			function getQuestionnaire(id){
-				$.ajax({
-	                method: 'GET',
+				ajax({
+					method: 'GET',
 	                url: 'xhr.php',
 	                data: {
 	                    action:'get_questionnaire_and_answers',
 	                    id:id,
 	                },
 	                dataType: 'json',
-	                success: function(data) {
-	                	if (data.result){
-	                		$('#questionnaire-title').text(data.title)
-	                		$('#questionnaire-pass').val(data.pass)
+				},function(data){
+					if (data.result){
+                		$('#questionnaire-title').text(data.title)
+                		$('#questionnaire-pass').val(data.pass)
 
-	                		data.questions.forEach(function(q){
-			                	questionAnswerMaker(q.id,q.title,q.options,q.mark)
-	                		})
-							$('#questionnaire-total').val(totalMarks());
-	                	}
-	                }
+                		data.questions.forEach(function(q){
+		                	questionAnswerMaker(q.id,q.title,q.options,q.mark)
+                		})
+						$('#questionnaire-total').val(totalMarks());
+						<?if (!hasAccess('3')){?>
+							$('#questionnaire-all input').attr('disabled','true')
+							$('#questionnaire-all select').attr('disabled','true')
+							$('#questionnaire-all *').removeAttr('contenteditable')
+							$('#questionnaire-all label').removeClass('required')
+							$('#questionnaire-all .card-footer').hide()
+							$('#questionnaire-all div[data-option] button.btn-outline-success').attr('disabled','true')
+							$('#questionnaire-all div[data-option] button.btn-outline-success.active').addClass('btn-success')
+							$('#questionnaire-all div[data-option] button.btn-success.active').removeClass('btn-outline-success')
+							$('#action-questionnaire').hide()
+						<?}?>
+                	}
 				})
 			}
 			function totalMarks(){
@@ -319,7 +334,7 @@ if (!$qid){
 					$(this).attr('disabled','true')
 				}
 
-				$(this).parents('.card').find('.card-body').append('<div class="form-group" data-option><label>'+alpha[amount+1]+'.</label><div class="input-group"><input class="form-control" data-option-desc><div class="input-group-append"><button class="btn btn-outline-success" data-option-correct>Correct</button><button class="btn btn-danger" data-remove>Remove</button></div></div></div>')
+				$(this).parents('.card').find('.card-body').append('<div class="form-group" data-option><label>'+alpha[amount+1]+'.</label><div class="input-group"><input class="form-control" data-option-desc><div class="input-group-append"><button class="btn btn-danger" data-remove>Remove</button><button class="btn btn-outline-success" data-option-correct>Correct</button></div></div></div>')
 				
 			})
 

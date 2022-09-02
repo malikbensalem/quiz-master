@@ -1,3 +1,4 @@
+<?if (hasAccess('2')){?>
 <div class="modal fade" id="user-assign-modal" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
     <div class="modal-content">
@@ -24,7 +25,7 @@
         	<table class="table table-striped" id="uam-tbl">
             <thead>
               <tr>
-                <th>Name</th><th>Assigned by</th><th>Date Assigned</th><th>Deadline</th><th>Attempts</th><th>Passed</th><th>Best</th>
+                <th>Name</th><th>Assigned by</th><th>Date Assigned</th><th>Deadline</th><th>Attempts</th><th>Passed</th><th>Best</th><th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -43,7 +44,7 @@
 <script>
   $('#uam-search').click(function(){
     if ($('#uam-student').val()){
-      $.ajax({
+      ajax({
         method: 'GET',
         url: '<?echo $baseURL?>user/xhr.php',
         data: {
@@ -51,17 +52,20 @@
             name:$('#uam-student').val(),
         },
         dataType: 'json',
-        success: function(data) {
-          if (data.result){
+      },function(data){
+        if (data.result){
             data.users.forEach(function(u){
-              $('#uam-tbl tbody').append('<tr data-uid='+u.id+' ><td data-name>'+u.name+'</td><td data-assign><? echo mysqli_fetch_row(mysqli_query($mysqli,"SELECT CONCAT(u_first_name,' ',u_last_name) FROM users WHERE u_id=".$_SESSION['user_id']))[0]??''?></td><td>-</td><td><input min="<?echo date('Y-m-d')?>" data-date class="form-control" type="date"  placeholder="deadline"></td><td>-</td><td>-</td><td><button data-remove class="btn btn-danger"><i class="fa-regular fa-trash-can"></i></button></td></tr>')
+              if ($('#uam-tbl tbody').find('tr[data-uid="'+u.id+'"]').length){
+                timedAlert('#uam-alert','<div class="alert alert-danger">This user is already added to the assignees list</div>')
+                return
+              }
+              $('#uam-tbl tbody').append('<tr data-uid='+u.id+' ><td data-name>'+u.name+'</td><td data-assign><? echo mysqli_fetch_row(mysqli_query($mysqli,"SELECT CONCAT(u_first_name,' ',u_last_name) FROM users WHERE u_id=".$_SESSION['user_id']))[0]??''?></td><td>-</td><td><input min="<?echo date('Y-m-d')?>" data-date class="form-control" type="date"  placeholder="deadline"></td><td>-</td><td>-</td><td>-</td><td><button data-remove class="btn btn-danger"><i class="fa-regular fa-trash-can"></i></button></td></tr>')
+              return
             })
           } 
           else{
-            timedAlert('#uam-alert','<div class="alert alert-danger">No user with that email or name</div>')
           }         
           $('#uam-student').val('');
-        }
       })
     }
     else{
@@ -76,7 +80,7 @@
         'deadline':$(this).find('input[data-date]').val(),
       })
     })
-    $.ajax({
+    ajax({
       method: 'POST',
       url: '<?echo $baseURL?>user/xhr.php',
       data: {
@@ -85,12 +89,10 @@
         users:users
       },
       dataType: 'json',
-      success: function(data) {
-        if (data.result){
+    },function(data){
+      if (data.result){
           timedAlert('#uam-alert','<div class="alert alert-success">Successfully modified assignees.</div>"')
-
         }
-      }
     })
   })
   $('#uam-student').keyup(function(e){
@@ -101,7 +103,7 @@
 
   function getAssignees(qid){
     $('#uam-tbl tbody').html('')
-    $.ajax({
+    ajax({
       method: 'GET',
       url: '<?echo $baseURL?>user/xhr.php',
       data: {
@@ -109,21 +111,24 @@
         qid:qid,
       },
       dataType: 'json',
-      success: function(data) {
-        if (data.result){
+    },function(data){
+      if (data.result){
           data.users.forEach(function(u){
-            $('#uam-tbl tbody').append('<tr data-uid='+u.uid+'><td>'+u.uname+'</td><td>'+u.aname+'</td><td>'+u.date+'</td><td> <input type="date" class="form-control" data-date value="'+u.deadline+'"></td><td>'+u.attempts+'</td><td>'+(u.passed==1?'<i class="fa-solid fa-check"></i>':'<i class="fa-solid fa-x"></i>')+'</td><td>'+u.best??'0'+'</td><td><button data-remove class="btn btn-danger"><i class="fa-regular fa-trash-can" data-remove></i></button></td></tr>')
+            $('#uam-tbl tbody').append('<tr data-uid='+u.uid+'><td>'+u.uname+'</td><td>'+u.aname+'</td><td>'+u.date+'</td><td> <input type="date" class="form-control" data-date value="'+u.deadline+'"></td><td>'+u.attempts+'</td><td>'+(u.passed==1?'<i class="fa-solid fa-check"></i>':'<i class="fa-solid fa-x"></i>')+'</td><td>'+(u.best??'0')+'</td><td><button data-remove class="btn btn-danger"><i class="fa-regular fa-trash-can" data-remove></i></button></td></tr>')
           })
         }
         else{
           $('#uam-tbl tbody').append('<tr data-empty><td class="text-center" colspan="100%">No users assigned to this questionnaire</td></tr>')
-
         }
-      }
-    })
+      })
   }
   
   $('#uam-tbl tbody').on('click','button[data-remove]',function(){
     $(this).parents('tr').remove()
   })
+  <?if (!hasAccess('3')){?>
+    $('#user-assign-modal').find('input,select,#uam-search').attr('disabled','true')
+    $('#user-assign-modal').find('#uam-save').hide()
+  <?}?>
 </script>
+<?}?>

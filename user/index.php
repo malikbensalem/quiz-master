@@ -8,7 +8,7 @@ if (!loggedin()){
 
 <html>
 	<head>
-		<?getHead('Users Page')?>
+		<?getHead('Users')?>
 	</head>
 	<body>
 		<?include $_SERVER['ROOT_PATH'].'assets/running/nav.php';?>
@@ -40,17 +40,16 @@ if (!loggedin()){
 			
 			function getUsers(sts){
         		$('#tbl-users tbody').html('')
-				$.ajax({
-	                method: 'GET',
+        		ajax({
+        			method: 'GET',
 	                url: 'xhr.php',
 	                data: {
 	                    action:'get_users',
 	                    sts:sts
 	                },
 	                dataType: 'json',
-	                success: function(data) {
-
-	                	if (data.result && data.users.length){
+        		},function(data){
+        			if (data.result && data.users.length){
 	                		sel='<select class="form-control selectpicker" <? echo hasAccess('4')?'':'disabled'?>>'
 	                		$('#statuses button[data-btn-status]').each(function(){
 	                			sel+='<option value='+$(this).data('btn-status')+' '+(sts==$(this).data('btn-status')?'selected':'')+'>'+$(this).text()+'</option>'
@@ -64,15 +63,12 @@ if (!loggedin()){
 	                		emptyTableMsg('#tbl-users tbody','There are no users that match this criteria')
 	                	}
                 		$('.selectpicker').selectpicker('refresh')
-						loader(false)
-
-	                }
-				})
+        		})
 			}
 
 			$('#tbl-users tbody').on('change','tr td[data-type] select',function(){
-				$.ajax({
-	                method: 'POST',
+				ajax({
+					method: 'POST',
 	                url: 'xhr.php',
 	                data: {
 	                    action:'change_user_type',
@@ -80,46 +76,44 @@ if (!loggedin()){
 	                    type:$(this).val(),
 	                },
 	                dataType: 'json',
-	                success: function(data) {
-	                	if (data.result){
-	                		$('#statuses button[data-btn-status].active').click()
-	                	}
-	            	}
-	            })
+				},function(data){
+					if (data.result){
+                		$('#statuses button[data-btn-status].active').click()
+                	}
+				})
 			})
-
-			$.ajax({
-                method: 'GET',
-                url: 'xhr.php',
+            ajax({
+            	method:'GET',
+            	url: 'xhr.php',
                 data: {
                     action:'get_user_type',
                 },
                 dataType: 'json',
-                success: function(data) {
-                	if (data.result){
-                		data.types.forEach(function(ut){
-                			$('#statuses').append('<button class="btn btn-lg btn-block btn-outline-dark" data-btn-status="'+ut.id+'">'+ut.desc+'</button>')	
-                		})
-						$('#statuses button[data-btn-status=1]').addClass('active')
-                		getUsers(1)
-                	}
-            	}
-            })
+
+            },function(data){
+            	if (data.result){
+            		data.types.forEach(function(ut){
+            			$('#statuses').append('<button class="btn btn-lg btn-block btn-outline-dark" data-btn-status="'+ut.id+'">'+ut.desc+'</button>')	
+            		})
+					$('#statuses button[data-btn-status=1]').addClass('active')
+            		getUsers(1)
+            	}            	
+            });
+
 			$('#tbl-users tbody').on('click','button[data-remove]',function(){
-				$.ajax({
-	                method: 'POST',
+				ajax({
+					method: 'POST',
 	                url: 'xhr.php',
 	                data: {
 	                    action:'remove_user',
 	                    id:$(this).parents('tr').data('id'),
 	                },
 	                dataType: 'json',
-	                success: function(data) {
-	                	if (data.result){
-	                		$('#statuses button[data-btn-status].active').click()	                		
-	                	}
-	            	}
-	            })
+				},function(data){
+					if (data.result){
+                		$('#statuses button[data-btn-status].active').click()	                		
+                	}	
+				})
 				$(this).parents('tr').remove()
             })
 			

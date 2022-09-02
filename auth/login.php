@@ -35,7 +35,9 @@ $_SESSION['user_level']='0';
 			<div class="col-xl-3 col-lg-4 " style="padding:50px">
 				<div class="row">
 					<div class="col-sm-12 text-center">
-						<img src="<?echo $baseURL?>assets/images/logo.svg" width="200">
+						<a href="<?echo $baseURL?>">
+							<img src="<?echo $baseURL?>assets/images/logo.svg" width="200">
+						</a>
 					</div>
 				</div>
 				<div class="row">
@@ -131,9 +133,8 @@ $_SESSION['user_level']='0';
 
 			$(this).html('<i class="fa-solid fa-spinner fa-spin"></i>')
 
-
-			$.ajax({
-                method: 'POST',
+			ajax({
+				 method: 'POST',
                 url: 'verify.php',
                 data: {
                     action:action,
@@ -143,17 +144,16 @@ $_SESSION['user_level']='0';
                     ln:$('#last-name').val(),
                 },
                 dataType: 'json',
-                success: function(data) {
-                	timedAlert('#alert',data.alert)
-                	if (data.result){
-                		timedRedirect('<?echo $baseURL?>questionnaire/')
-                	}
-                	else{
-            			$('#login').removeClass('disabled')
-                		$('#login').html(loginHtml)
-                	}
-                }
-            })
+			},function(data){
+				timedAlert('#alert',data.alert)
+            	if (data.result){
+            		timedRedirect('<?echo $baseURL?>questionnaire/')
+            	}
+            	else{
+        			$('#login').removeClass('disabled')
+            		$('#login').html(loginHtml)
+            	}
+			})
 		})
 		</script>
 	</body>

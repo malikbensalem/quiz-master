@@ -38,7 +38,7 @@ if (isPost()){
 
 			$q['options']=isset($q['options'])?json_encode( $q['options']):[];
 
-			mysqli_query($mysqli,"INSERT INTO question_line (ql_id,ql_qh_id,ql_title,ql_options,ql_mark) VALUES (".$q['id'].",$qid,'".$q['title']."','".$q['options']."','".$q['mark']."') ON DUPLICATE KEY UPDATE ql_title='".$q['title']."',ql_options='".$q['options']."', ql_mark='".$q['mark']."'  ,ql_qs_id=1");
+			mysqli_query($mysqli,"INSERT INTO question_line (ql_id,ql_qh_id,ql_title,ql_options,ql_mark) VALUES (".$q['id'].",$qid,'".$q['title']."','".$q['options']."','".$q['mark']."') ON DUPLICATE KEY UPDATE ql_title='".$q['title']."',ql_options='".$q['options']."', ql_mark='".$q['mark']."'  ,ql_qs_id=1") or die(json_encode(['result'=>false, 'error'=>500]));
 		}
 		die (json_encode(['result'=>true]));
 	}
@@ -51,10 +51,10 @@ if (isPost()){
 			$conds.=" OR JSON_OVERLAPS(ql_options, '{\"title\": \"".$q['ans']."\",\"correct\": \"true\"}')";
 		}
 		$conds=substr($conds, 3);
-
-		list($score)=mysqli_fetch_row(mysqli_query($mysqli,"SELECT count(ql_id) FROM question_line WHERE ql_qh_id=$qid AND ($conds) "));
-		
-		mysqli_query($mysqli,"INSERT INTO users_question_header (uqh_u_id,uqh_qh_id,uqh_score,uqh_total) VALUES (".$_SESSION['user_id'].",$qid,$score,".count($quests).")");
+	
+		list($score)=mysqli_fetch_row(mysqli_query($mysqli,"SELECT sum(ql_mark) FROM question_line WHERE ql_qh_id=$qid AND ($conds) ")) or die(json_encode(['result'=>false, 'error'=>500]));
+		list($total)=mysqli_fetch_row(mysqli_query($mysqli,"SELECT sum(ql_mark) FROM question_line WHERE ql_qh_id=$qid ")) or die(json_encode(['result'=>false, 'error'=>500]));
+		mysqli_query($mysqli,"INSERT INTO users_question_header (uqh_u_id,uqh_qh_id,uqh_score,uqh_total) VALUES (".$_SESSION['user_id'].",$qid,$score,$total)") or die(json_encode(['result'=>false, 'error'=>500]));
 
 		die(json_encode(['result'=>true]));
 	}
@@ -92,7 +92,7 @@ elseif (isGet()){
 		elseif ($assigned==2){
 			$cond .= " AND qha_u_id != ".$_SESSION['user_id'];
 		}
-		if ($_SESSION['user_level']==1){
+		if (!hasAccess(2)){
 			if($complete==1){
 				$cond .= " AND uqh_score IS NULL";
 			}
@@ -103,8 +103,8 @@ elseif (isGet()){
 				$cond .= " AND uqh_score >= qh_pass";			
 			}
 		}
-
-		$qq=mysqli_query($mysqli,"SELECT qh_u_id,DATE_FORMAT(qh_end_date, '%m/%d/%Y') as qh_end_date,qh_id,qh_title,qh_pass,qh_pass>=(SELECT max(uqh_score) FROM users_question_header WHERE uqh_u_id=".$_SESSION['user_id'].") as qh_passed, CONCAT(u_first_name,' ',u_last_name) as f_name,GROUP_CONCAT(qc_id SEPARATOR ', ') as c_id ,GROUP_CONCAT(qc_desc SEPARATOR ', ') as c_desc FROM question_header LEFT JOIN question_category ON JSON_CONTAINS(qh_qc_id, CAST(qc_id as JSON), '\$') LEFT JOIN question_header_assignee ON qha_qh_id=qh_id LEFT JOIN users ON u_id=qha_u_id LEFT JOIN users_question_header ON u_id=uqh_id WHERE qh_qs_id in ($sts) $cond $cats GROUP BY qh_id") or die(json_encode(['result'=>false, 'error'=>500]));
+		
+		$qq=mysqli_query($mysqli,"SELECT qh_u_id,DATE_FORMAT(qh_end_date, '%m/%d/%Y') as qh_end_date,qh_id,qh_title,qh_pass,qh_pass>=(SELECT max(uqh_score) FROM users_question_header WHERE uqh_u_id=".$_SESSION['user_id'].") as qh_passed, CONCAT(u_first_name,' ',u_last_name) as f_name,GROUP_CONCAT(qc_id SEPARATOR ', ') as c_id ,GROUP_CONCAT(qc_desc SEPARATOR ', ') as c_desc FROM question_header LEFT JOIN question_category ON JSON_CONTAINS(qh_qc_id, CAST(qc_id as JSON), '\$') LEFT JOIN question_header_assignee ON qha_qh_id=qh_id LEFT JOIN users ON u_id=qh_u_id LEFT JOIN users_question_header ON u_id=uqh_id WHERE qh_qs_id in ($sts) $cond $cats GROUP BY qh_id") or die(json_encode(['result'=>false, 'error'=>500]));
 
 		while ($r=mysqli_fetch_assoc($qq)){	
 			$owned = mysqli_fetch_row(mysqli_query($mysqli,"SELECT u_first_name,u_last_name FROM users WHERE u_id=".$r['qh_u_id']));
@@ -142,12 +142,10 @@ elseif (isGet()){
 	}
 	elseif ($_GET['action']=='get_questionnaire'){
 		$qid=$_GET['id'];
-		list($title)=mysqli_fetch_row(mysqli_query($mysqli,"SELECT qh_title FROM question_header WHERE qh_id=$qid")) or die(json_encode(['result'=>false]));
-
-		$qql=mysqli_query($mysqli,"SELECT ql_id,ql_title,ql_options FROM `question_line` WHERE ql_qh_id=$qid AND ql_qh_id") or die(json_encode(['result'=>false]));
+		list($title)=mysqli_fetch_row(mysqli_query($mysqli,"SELECT qh_title FROM question_header WHERE qh_id=$qid")) or die(json_encode(['result'=>false, 'error'=>500]));
+		$qql=mysqli_query($mysqli,"SELECT ql_id,ql_title,ql_options FROM `question_line` WHERE ql_qh_id=$qid AND ql_qs_id=1") or die(json_encode(['result'=>false, 'error'=>500]));
 
 		$ql=[];
-
 		while ($r=mysqli_fetch_assoc($qql)) {
 			$opt=[];
 			foreach (json_decode($r['ql_options'],true) as $value) {
@@ -163,7 +161,46 @@ elseif (isGet()){
 		}
 		die(json_encode(['result'=>true,'title'=>$title,'questions'=>$ql]));
 	}
+	elseif ($_GET['action']=='get_user_attempts'){
 
+		$quqh='';
+		if (!hasAccess(2)){
+			$cats=isset($_GET['cats'])?' AND qc_id in ('.implode(',',$_GET['cats']).') ':'';
+
+			$cond=$cond==[]?'':'Where '.implode(' AND ',$cond);
+			$quqh=mysqli_query($mysqli,"SELECT qh_id,u_first_name,u_last_name,qh_title,DATE_FORMAT(uqh_input_date, '%m/%d/%Y %H:%i') as uqh_input_date,uqh_score,uqh_total,qh_pass FROM `user_question_header` LEFT JOIN question_header ON uqh_qh_id=qh_id LEFT JOIN user ON uqh_u_id=u_id LEFT JOIN question_category ON JSON_CONTAINS(qh_qc_id, CAST(qc_id as JSON), '\$') WHERE u_id=".$_SESSION['user_id']." $cats GROUP BY uqh_id ORDER BY `user_question_header`.`uqh_input_date` DESC");
+		}else{
+			$usrs=(isset($_GET['users']) && !empty($_GET['users'])) ?' u_id in ('.implode(',', $_GET['users']).') ':'';
+
+			$cats=isset($_GET['cats'])?' qc_id in ('.implode(',',$_GET['cats']).') ':'';
+
+			$cond=[];
+			if ($usrs!=''){
+			$cond[]=$usrs;
+			}
+			if ($cats!=''){
+			$cond[]=$cats;
+			}
+			
+			$cond=$cond==[]?'':'Where '.implode(' AND ',$cond);
+
+
+			$quqh=mysqli_query($mysqli,"SELECT qh_id,u_first_name,u_last_name,qh_title,DATE_FORMAT(uqh_input_date, '%m/%d/%Y %H:%i') as uqh_input_date,uqh_score,uqh_total,qh_pass FROM `users_question_header` LEFT JOIN question_header ON uqh_qh_id=qh_id LEFT JOIN users ON uqh_u_id=u_id LEFT JOIN question_category ON JSON_CONTAINS(qh_qc_id, CAST(qc_id as JSON), '\$') $cond GROUP BY uqh_id ORDER BY `users_question_header`.`uqh_input_date` DESC");
+		}
+		$ugh=[];
+		while ($r=mysqli_fetch_assoc($quqh)) {
+			$ugh[]=[
+				'id'=>$r['qh_id'],
+				'name'=>$r['u_first_name'].' '.$r['u_last_name'],
+				'quest'=>$r['qh_title'],
+				'date'=>$r['uqh_input_date'],
+				'score'=>$r['uqh_score'],
+				'pass'=>$r['uqh_total'],
+				'total'=>$r['uqh_total'],
+			];
+		}
+		die(json_encode(['result'=>$ugh!=[],'outcome'=>$ugh]));
+	}
 }
 
 die(json_encode(['result'=>false,'error'=>'404']));

@@ -52,25 +52,22 @@
 </div>
 
 <script>
-
-  $.ajax({
-      method: 'GET',
+  ajax({
+    method: 'GET',
       url: '<?echo $baseURL?>user/xhr.php',
       data: {
         action:'get_users',
         id:<?echo $_SESSION['user_id']?>,
       },
       dataType: 'json',
-      success: function(data) {
-        if (data.result){
-          me=data.users[0]
-          $('#am-name').val(me.name)
-          $('#am-email').val(me.email)
-          $('#am-type').val(me.type)
-        }
-      }
-    })
-  
+  },function(data){
+    if (data.result){
+      me=data.users[0]
+      $('#am-name').val(me.name)
+      $('#am-email').val(me.email)
+      $('#am-type').val(me.type)
+    }
+  })
   $('#am-save').click(function(){
     resetpassword();
   })
@@ -83,7 +80,7 @@
       timedAlert('#am-alert','<div class="alert alert-danger">Could not change password. Make sure the passwords you have entered are atleast 6 characters long.</div>')
       return false
     }
-		$.ajax({
+    ajax({
       method: 'POST',
       url: '<?echo $baseURL?>user/xhr.php',
       data: {
@@ -92,14 +89,13 @@
         old:$('#am-password-old').val(),
       },
       dataType: 'json',
-      success: function(data) {
-        if (data.result){
+    },function(data){
+      if (data.result){
           timedAlert('#am-alert','<div class="alert alert-success">Successfully changed password.</div>')
         }
         else{
           timedAlert('#am-alert','<div class="alert alert-danger">The current password entered is wrong. Please try again.</div>')
         }
-      }
-    })
+      })
   }
 </script>

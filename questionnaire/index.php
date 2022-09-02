@@ -9,7 +9,7 @@ if (!loggedin()){
 
 <html>
 	<head>
-		<?getHead('Questionnaire Page')?>
+		<?getHead('Questionnaire')?>
 	</head>
 	<body>
 			<?include $_SERVER['ROOT_PATH'].'assets/running/nav.php';?>
@@ -19,14 +19,12 @@ if (!loggedin()){
 			<div class="row">
 				<div class="col-md-4" >
 					<?breadcrumbs(['questionnaire'])?>
-
+					<?if(hasAccess('3')){?>
 					<div class="btn-group-vertical btn-block">
 						<a class="btn btn-lg btn-block btn-outline-info active">Action</a>
 						<button class="btn btn-lg btn-block btn-outline-dark" id="create-q">Create questionnaire</button>
 					</div>
-					<?
-
-					?>
+					<?}?>
 					<?if(hasAccess('2')){?>
 					<div class="btn-group-vertical btn-block" id="statuses">
 						<a class="btn btn-lg btn-block btn-outline-info active">Status</a>
@@ -40,7 +38,7 @@ if (!loggedin()){
 							<option value="1" selected>Assigned <?if(hasAccess('2')){?>/ owned<?}?></option>
 							<option value="2">Not assigned</option>
 						</select>
-						<?if($_SESSION['user_level']==1){?>
+						<?if(!hasAccess(2)){?>
 						<select class="form-control form-select-lg selectpicker" title="Complete filter" id="complete-filter" data-style="btn-outline-dark">
 							<option value="1" selected>Not attempted</option>
 							<option value="2">Not passed</option>
@@ -54,7 +52,7 @@ if (!loggedin()){
 				<div class="col-md-8">
 					<div class="table-responsive">
 						<table class="table table-striped " id="tbl-questionnaire">
-							<thead><th>Title</th><th>Subject</th><?if($_SESSION['user_level']==1){?><th>Passed</th><?}?><th>Assigned by</th><th>Deadline</th><?if(hasAccess('2')){?><th>Owned by</th><?}?><th>Actions</th></thead>
+							<thead><th>Title</th><th>Subject</th><?if(!hasAccess(2)){?><th>Passed</th><?}?><th>Assigned by</th><th>Deadline</th><?if(hasAccess('2')){?><th>Owned by</th><?}?><th>Actions</th></thead>
 							<tbody></tbody>
 						</table>
 					</div>
@@ -62,39 +60,38 @@ if (!loggedin()){
 			</div>
 		</div>
 
-		<?if ($_SESSION['user_level']>1){
-			include $_SERVER['ROOT_PATH']."assets/modals/user_assign_modal.php";
+		<?if (hasAccess(2)){
+			include $_SERVER['ROOT_PATH']."assets/modals/user_assign_modal.php";		
 			include $_SERVER['ROOT_PATH']."assets/modals/create_edit_modal.php";
 		}?>
+
 		
 		<?include $_SERVER['ROOT_PATH'].'assets/running/footer.php'?>
 		<script type="text/javascript">
 			getQuestionnaires(1)
 			getQuestionnaireCategories()
 			function getQuestionnaireCategories(){
-				$.ajax({
-			        method: 'GET',
+				ajax({
+					method: 'GET',
 			        url: 'xhr.php',
 			        data: {
 			            action:'get_questionnaire_categories',
 			        },
 			        dataType: 'json',
-			        success: function(data) {
-			        	if (data.result){
-			        		data.cats.forEach(function(c){
-			            		$('#category-filter').append($('<option>', {
-								    value: c.id,
-								    text: c.desc,
-								}));
-			        		})
-			        	}
-			    	}
-			    })
+				},function(data){
+					if (data.result){
+		        		data.cats.forEach(function(c){
+		            		$('#category-filter').append($('<option>', {
+							    value: c.id,
+							    text: c.desc,
+							}));
+		        		})
+		        	}
+				})
 			}
 			function getQuestionnaires(sts,cat=[],assign=1,complete=1){
-				loader(true)
-				$.ajax({
-	                method: 'GET',
+				ajax({
+					method: 'GET',
 	                url: 'xhr.php',
 	                data: {
 	                    action:'get_questionnaires',
@@ -104,19 +101,17 @@ if (!loggedin()){
 	                    complete:complete,
 	                },
 	                dataType: 'json',
-	                success: function(data) {
-                		$('#tbl-questionnaire tbody').html('')
-	                	if (data.result){
-	                		
-	                		data.quest.forEach(function(q){
-								$('#tbl-questionnaire tbody').append('<tr data-id='+q.id+'><td data-title>'+q.title+'</td><td data-cat="'+q.cid+'">'+q.cat+'</td><?if ($_SESSION['user_level']==1){?><td>'+(q.passed==1?'<i class="fa-solid fa-check"></i>':'<i class="fa-solid fa-x"></i>')+'<?}?></td><td>'+q.assigned+'</td><td>'+q.deadline+'</td><?if(hasAccess('2')){?><td>'+q.owned+'</td><?}?><td><div class="btn-group"><?if (hasAccess('2')){?><button class="btn btn-light" data-edit title="Edit"><i class="fa-regular fa-pen-to-square"></i></button><button class="btn btn-dark" data-users title="Assignees"><i class="fa-solid fa-users"></i></button><?}?> <a href="show_questionnaire?id='+q.id+'" class="btn btn-primary" title="Start"><i class="fa-solid fa-play"></i></a></div></td></tr>')
-	                		})
-	                	}
-	                	else{
-	                		emptyTableMsg('#tbl-questionnaire tbody','There are no questionnaires')
-	                	}
-						loader(false)
-	                }
+				},function(data){
+					$('#tbl-questionnaire tbody').html('')
+                	if (data.result){
+                		
+                		data.quest.forEach(function(q){
+							$('#tbl-questionnaire tbody').append('<tr data-id='+q.id+'><td data-title>'+q.title+'</td><td data-cat="'+q.cid+'">'+q.cat+'</td><?if (!hasAccess(2)){?><td>'+(q.passed==1?'<i class="fa-solid fa-check"></i>':'<i class="fa-solid fa-x"></i>')+'<?}?></td><td>'+q.assigned+'</td><td>'+q.deadline+'</td><?if(hasAccess('2')){?><td>'+q.owned+'</td><?}?><td><div class="btn-group"><?if (hasAccess('2')){?><button class="btn btn-light" data-edit title="Edit"><i class="fa-regular fa-pen-to-square"></i></button><button class="btn btn-dark" data-users title="Assignees"><i class="fa-solid fa-users"></i></button><?}?> <a href="show_questionnaire?id='+q.id+'" class="btn btn-primary" title="Start"><i class="fa-solid fa-play"></i></a></div></td></tr>')
+                		})
+                	}
+                	else{
+                		emptyTableMsg('#tbl-questionnaire tbody','There are no questionnaires')
+                	}
 				})
 			}
 			

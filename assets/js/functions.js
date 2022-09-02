@@ -36,15 +36,31 @@ function isEmail(email){
     	return false; 
 }
 
-function questionMaker(id,title,options){
-	quest='<div class="card" data-id='+id+'><div class="card-header"><h3>'+title+'</h3></div><div class="card-body">'
-	count=1
-	options.forEach(function(o){
-		quest+='<button class="btn btn-outline-dark btn-block" data-option>'+alpha[count]+'. '+o+'</button>'
-		count++
+function ajax(ajax,callback){
+	loader(true)
+	return $.ajax({
+	    method: ajax['method'],
+	    url: ajax['url'],
+	    data: ajax['data'],
+	    dataType: ajax['dataType'],
+	    success: function(data) {
+	    	if (data.error){
+	    		if (data.error=='500'){
+					$('#500-modal').modal('show');
+	    		}
+	    		else if (data.error=='404'){
+					$('#404-modal').modal('show');
+	    		}
+	    		return false;
+	    	}
+	    	callback(data);
+			loader(false)
+	    },
+	    error: function (request, status, error) {
+			$('#500-modal').modal('show');
+	    	return false;
+	    }
 	})
-	quest+='</div></div>'
-	$('#questions').append(quest)
 }
 
 $('.disabled,.active').click(function(e){
@@ -65,6 +81,7 @@ $('#statuses').on('click','button[data-btn-status]',function(){
 $(document).ready(function() {
 	$('#statuses button[data-btn-status=1]').addClass('active')
 });
+
 alpha={
 	'1':'A',
 	'2':'B',

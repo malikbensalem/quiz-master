@@ -41,9 +41,9 @@ if (isPost()){
 		}
 		$qid=$_POST['qid'];
 		$users=$_POST['users']??[];
-		mysqli_query($mysqli,"UPDATE question_header_assignee SET qha_live=0 WHERE qha_qh_id=$qid");
+		mysqli_query($mysqli,"UPDATE question_header_assignee SET qha_live=0 WHERE qha_qh_id=$qid") or die();
 		foreach ($users as $u) {
-			mysqli_query($mysqli,"INSERT INTO question_header_assignee (qha_qh_id,qha_u_id,qh_end_date,qh_assigned_by) VALUES($qid,".$u['uid'].",'".$u['deadline']."',".$_SESSION['user_id'].") ON DUPLICATE KEY UPDATE qha_live=1, qh_end_date='".$u['deadline']."'");
+			mysqli_query($mysqli,"INSERT INTO question_header_assignee (qha_qh_id,qha_u_id,qh_end_date,qh_assigned_by) VALUES($qid,".$u['uid'].",'".$u['deadline']."',".$_SESSION['user_id'].") ON DUPLICATE KEY UPDATE qha_live=1, qh_end_date='".$u['deadline']."'") or die(json_encode(['result'=>false,'error'=>'500']));
 		}
 		die(json_encode(['result'=>true]));
 	}
@@ -62,7 +62,7 @@ elseif(isGet()){
 		die(json_encode(['result'=>true,'types'=>$ut]));
 	}
 	elseif ($_GET['action']=='get_user_assignee'){
-		if ($_SESSION['user_level']<2){
+		if (!hasAccess(3)){
 			die(json_encode(['result'=>false,'error'=>'401']));				
 		}
 		$qid=$_GET['qid'];

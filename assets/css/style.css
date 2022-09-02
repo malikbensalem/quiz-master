@@ -110,3 +110,32 @@ td{
      border-top-left-radius: 5px;
      border-top-right-radius: 5px;
 }
+.alert-danger:before {
+  font-family: "Font Awesome 5 Free"; 
+  font-weight: 900;
+  content: "\f06a";
+  padding-right: 5px;
+}
+.alert-success:before {
+  font-family: "Font Awesome 5 Free"; 
+  font-weight: 900;
+  content: "\f00c";
+  padding-right: 5px;
+}
+
+.error img.pic-header{
+  height: 20vh;
+  margin: 50px;
+}
+.error h1,h2{
+  font-weight:bold;
+}
+.error h1{
+  font-size:650%;
+} 
+.error h2{
+  font-size:350%; 
+}
+.error h3{
+  font-weight: normal;
+}

@@ -20,7 +20,13 @@ function getHead($title){
 	global $baseURL;
 	$style_css_v=md5_file($_SERVER['ROOT_PATH']."assets/css/style.css");
 	$functions_js_v=md5_file($_SERVER['ROOT_PATH'].'assets/js/functions.js');
-	
+	echo '<link rel="apple-touch-icon" sizes="180x180" href="'.$baseURL.'assets/images/favicons/apple-touch-icon.png">
+				<link rel="icon" type="image/png" sizes="32x32" href="'.$baseURL.'assets/images/favicons/favicon-32x32.png">
+				<link rel="icon" type="image/png" sizes="16x16" href="'.$baseURL.'assets/images/favicons/favicon-16x16.png">
+				<link rel="manifest" href="'.$baseURL.'assets/images/favicons/site.webmanifest">
+				<link rel="mask-icon" href="'.$baseURL.'assets/images/favicons/safari-pinned-tab.svg" color="#5bbad5">
+				<meta name="msapplication-TileColor" content="#ffffff">
+				<meta name="theme-color" content="#ffffff">';
 
 	echo "<meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'><meta name='description' content='$title page.'><meta name='author' content='Malik Bensalem'><meta name='docsearch:language' content='en'><title>$title - WebbiSkools</title>";
 	echo "<link rel='stylesheet' href='".$baseURL."assets/css/bootstrap4.css'>";
@@ -52,14 +58,13 @@ function getCategories(){
 }
 function breadcrumbs($active=[],$text=[]){
 	global $baseURL;
-
 	echo '<div class="btn-group-vertical btn-block mb-2" id="breadcrumbs">
-		<a class="btn btn-lg btn-block btn-outline-info active">Links</a>
-		<a class="btn btn-lg btn-block btn-outline-dark " href="javascript:history.back()">Go Back</a>';
+		<a class="btn btn-lg btn-block btn-outline-info active">Links <i class="fa-solid fa-link"></i></a>
+		<a class="btn btn-lg btn-block btn-outline-dark" href="javascript:history.back()">Go Back <i class="fa-solid fa-arrow-left"></i></a>';
 	if (loggedin()){
-		echo '<a data-questionnaire href="'.$baseURL.'questionnaire/" class="btn btn-lg btn-block btn-outline-dark" >Questionnaires</a>
-		<a data-results href="'.$baseURL.'questionnaire/results.php" class="btn btn-lg btn-block btn-outline-dark">See Results</a>
-		'.(hasAccess(2)?'<a data-users href="'.$baseURL.'user/" class="btn btn-lg btn-block btn-outline-dark">'.(hasAccess('2')?"View":'Manage').' users</a>':'');
+		echo '<a data-questionnaire href="'.$baseURL.'questionnaire/" class="btn btn-lg btn-block btn-outline-dark" >Questionnaires <i class="fa-solid fa-clipboard-question"></i></a>
+		<a data-results href="'.$baseURL.'questionnaire/results.php" class="btn btn-lg btn-block btn-outline-dark">See Results <i class="fa-solid fa-square-poll-vertical"></i></a>
+		'.(hasAccess(2)?'<a data-users href="'.$baseURL.'user/" class="btn btn-lg btn-block btn-outline-dark">'.(hasAccess('2')?"View":'Manage').' users <i class="fa-solid fa-users"></i></a>':'');
 	}
 	else{
 		echo '<a data-questionnaire href="'.$baseURL.'" class="btn btn-lg btn-block btn-outline-dark" >Home</a>
@@ -76,7 +81,7 @@ function breadcrumbs($active=[],$text=[]){
 	foreach ($text as $key => $value) {
 		?>
 		<script class="temp">
-		$('#breadcrumbs').find("[data-<?echo $key?>]").text("<?echo $value?>");
+		$('#breadcrumbs').find("[data-<?echo $key?>]").html("<?echo $value?>");
 		</script>
 		<?
 	}

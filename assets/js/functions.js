@@ -51,6 +51,10 @@ function ajax(ajax,callback){
 	    		else if (data.error=='404'){
 					$('#404-modal').modal('show');
 	    		}
+	    		else if (data.error=='403'){
+					$('#403-modal').modal('show');
+	    		}
+	    		loader(false)
 	    		return false;
 	    	}
 	    	callback(data);
@@ -58,27 +62,26 @@ function ajax(ajax,callback){
 	    },
 	    error: function (request, status, error) {
 			$('#500-modal').modal('show');
+			loader(false)
 	    	return false;
 	    }
 	})
 }
-
-$('.disabled,.active').click(function(e){
-	e.preventDefault();
-	e.stopPropagation();
-	return
-})
-$('.table-responsive').on('show.bs.select', function () { 
-	$('.table-responsive').css( "overflow", "inherit" );
-	$('.bootstrap-table').css( "overflow", "inherit" ); 
-	$('.fixed-table-body').css( "overflow", "inherit" );     
-});
-$('#statuses').on('click','button[data-btn-status]',function(){
-	$('#statuses button[data-btn-status]').removeClass('active')
-	$(this).addClass('active')
-	loader(true)
-})
 $(document).ready(function() {
+	$('.disabled,.active').click(function(e){
+		e.preventDefault();
+		e.stopPropagation();
+		return
+	})
+	$('.table-responsive').on('show.bs.select', function () { 
+		$('.table-responsive').css( "overflow", "inherit" );
+		$('.bootstrap-table').css( "overflow", "inherit" ); 
+		$('.fixed-table-body').css( "overflow", "inherit" );     
+	});
+	$('#statuses').on('click','button[data-btn-status]',function(){
+		$('#statuses button[data-btn-status]').removeClass('active')
+		$(this).addClass('active')
+	})
 	$('#statuses button[data-btn-status=1]').addClass('active')
 });
 

@@ -2,7 +2,11 @@
 include $_SERVER['ROOT_PATH'].'assets/connection/dbc.php';
 
 if (!loggedin()){
-	header("Location: $baseURL");
+	include $_SERVER['ROOT_PATH']."assets/errors/401.php";
+}
+if (!hasAccess('2')){
+	include $_SERVER['ROOT_PATH']."assets/errors/403.php";
+	die();
 }
 ?>
 

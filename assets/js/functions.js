@@ -44,7 +44,8 @@ function ajax(ajax,callback){
 	    data: ajax['data'],
 	    dataType: ajax['dataType'],
 	    success: function(data) {
-	    	if (data.error){
+			if (data.error){
+	    		$('.modal').modal('hide');
 	    		if (data.error=='500'){
 					$('#500-modal').modal('show');
 	    		}

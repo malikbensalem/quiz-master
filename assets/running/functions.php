@@ -39,7 +39,7 @@ function getHead($title){
 	echo "<script src='".$baseURL."assets/js/popper.js'></script>";
 	echo "<script src='".$baseURL."assets/js/bootstrap4.js'></script>";
 	echo '<script src="'.$baseURL.'assets/js/bootstrap_select.js"></script>';
-	echo "<script src='".$baseURL."assets/js/functions.js?v=<?echo $functions_js_v?>'></script>";
+	echo "<script src='".$baseURL."assets/js/functions.js?v=$functions_js_v'></script>";
 }
 function hashPW($email,$pw){
 	return hash('sha512',openssl_encrypt($email.$pw ,'aes-256-cfb', PW_KEY, 0,PW_ENCRYPT));

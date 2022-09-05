@@ -90,6 +90,8 @@ if (!loggedin()){
 				})
 			}
 			function getQuestionnaires(sts,cat=[],assign=1,complete=1){
+				sts=sts??'1'
+				console.log(sts)
 				ajax({
 					method: 'GET',
 	                url: 'xhr.php',
@@ -135,7 +137,7 @@ if (!loggedin()){
 				self=$(this).parents('tr')
 				$('#cem-title').val(self.find('td[data-title]').text())
 				$('#cem-status').val($('#statuses').find('button.active').data('btn-status'))
-				cats=self.find('td[data-cat]').data('cat')?self.find('td[data-cat]').data('cat').replaceAll(' ','').split(','):''
+				cats=self.find('td[data-cat]').data('cat')?self.find('td[data-cat]').data('cat').toString().replaceAll(' ','').split(','):''
 				$('#cem-cat').val(cats)
 				$('#cem-save').data('id',self.data('id'))
 				$('#cem-questions').show()

@@ -2,10 +2,12 @@
 include $_SERVER['ROOT_PATH'].'assets/connection/dbc.php';
 
 if (!loggedin()){
-	include $baseURL."assets/errors/401.php";
+	include $_SERVER['ROOT_PATH']."assets/errors/401.php";
+	die();
 }
 if (!hasAccess('2')){
-	include $baseURL."assets/errors/403.php";
+	include $_SERVER['ROOT_PATH']."assets/errors/403.php";
+	die();
 }
 $qid=$_GET['id']??'0';
 $noContent = mysqli_num_rows(mysqli_query($mysqli,"SELECT qh_id FROM `question_header` WHERE qh_id='$qid' AND qh_qs_id!=3"))==0;

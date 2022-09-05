@@ -84,6 +84,7 @@ elseif (isGet()){
 	elseif ($_GET['action']=='get_questionnaires'){
 		$uid=$_SESSION['user_id'];
 		$sts=$_GET['sts']??'1';
+		// echo $sts;
 		$cats=isset($_GET['cats'])?' AND qc_id in ('.implode(',',$_GET['cats']).') ':'';
 		$assigned=$_GET['assigned'];
 		$complete=$_GET['complete'];
@@ -108,13 +109,14 @@ elseif (isGet()){
 				$cond .= " AND (SELECT max(uqh_score) FROM users_question_header WHERE uqh_u_id=$uid AND uqh_qh_id=qh_id) >= qh_pass";			
 			}
 		}
-		$qq=mysqli_query($mysqli,"SELECT qh_id,(SELECT max(uqh_score) FROM users_question_header WHERE uqh_u_id=$uid AND uqh_qh_id=qh_id) as uqh_score,qh_id,qh_title,qh_pass,qh_pass>=(SELECT max(uqh_score) FROM users_question_header WHERE uqh_u_id=$uid and uqh_qh_id=qh_id) as qh_passed,qh_qc_id as c_id, (SELECT CONCAT(u_first_name,' ',u_last_name) FROM users LEFT JOIN question_header_assignee ON u_id=qha_u_id WHERE qha_live=1 AND qha_qh_id=qh_id LIMIT 1) as assigned_by, qh_u_id,(SELECT DATE_FORMAT(qh_end_date, '%m/%d/%Y') FROM question_header_assignee WHERE qha_live=1 AND qha_qh_id=qh_id LIMIT 1) as deadline FROM question_header LEFT JOIN question_category ON JSON_CONTAINS(qh_qc_id, CAST(qc_id as JSON), '$') LEFT JOIN users ON u_id=qh_u_id LEFT JOIN question_header_assignee ON qha_qh_id=qh_id LEFT JOIN users_question_header ON u_id=uqh_id WHERE qh_qs_id in ($sts) $cond $cats GROUP BY qh_id");
+		$qq=mysqli_query($mysqli,"SELECT qh_id,(SELECT max(uqh_score) FROM users_question_header WHERE uqh_u_id=$uid AND uqh_qh_id=qh_id) as uqh_score,qh_id,qh_title,qh_pass,(SELECT max(uqh_score) FROM users_question_header WHERE uqh_u_id=$uid AND uqh_qh_id=qh_id) >= qh_pass as qh_passed,qh_qc_id as c_id, (SELECT CONCAT(u_first_name,' ',u_last_name) FROM users LEFT JOIN question_header_assignee ON u_id=qha_u_id WHERE qha_live=1 AND qha_qh_id=qh_id LIMIT 1) as assigned_by, qh_u_id,(SELECT DATE_FORMAT(qh_end_date, '%m/%d/%Y') FROM question_header_assignee WHERE qha_live=1 AND qha_qh_id=qh_id LIMIT 1) as deadline FROM question_header LEFT JOIN question_category ON JSON_CONTAINS(qh_qc_id, CAST(qc_id as JSON), '$') LEFT JOIN users ON u_id=qh_u_id LEFT JOIN question_header_assignee ON qha_qh_id=qh_id LEFT JOIN users_question_header ON u_id=uqh_id WHERE qh_qs_id in ($sts) $cond $cats GROUP BY qh_id");
 		
 		while ($r=mysqli_fetch_assoc($qq)){	
+
 			if($r['c_id']!='"[]"'){
 				$r['c_id']=substr($r['c_id'], 1, -1);
 			}
-			if ($r['c_id']!='[]'){
+			if ($r['c_id']=='[]'||empty($r['c_id'])){
 				$r['c_id']='"[]"';
 			}
 
@@ -126,6 +128,7 @@ elseif (isGet()){
 					$cdesc.=$rr['qc_desc'].' ,';
 				}
 				$cdesc=substr($cdesc, 0, -1);
+				$r['c_id'] = str_replace(["'",'"','[',']'],'',$r['c_id']);
 
 				$qas[]=[
 					'id'=>$r['qh_id'],

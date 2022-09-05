@@ -13,7 +13,7 @@ $_SESSION['user_level']='0';
     <body>
 		
         <header style="background-image: url('<?echo $baseURL?>assets/images/banner.jpg'); background-position: center; padding:10vh">
-            <div class="text-center">
+            <div class="text-center" style="background: rgba(1,1,1,.5);padding: 50px 0px;">
                 <img class="img-fluid rounded-circle" src="<?echo $baseURL?>assets/images/logo.svg" width="150" alt="logo" />
                 <h1 class="text-white fs-3 fw-bolder">WebbiSkools</h1>
                 <a href="<?echo $baseURL?>auth/login.php" class="btn btn-info">Click here to login or register</a>
@@ -24,7 +24,7 @@ $_SESSION['user_level']='0';
                 <div class="col-lg-6">
                     <h2>About</h2>
                     
-                    <p> WebbiSkools Ltd provides on-line educational solutions to commercial and government clients, such as universities and training departments of large industrial companies. This website enables the creation and management of questionnaires consisting of multiple-choice questions</p>
+                    <p> WebbiSkools Ltd provides on-line educational solutions to commercial and government clients, such as universities and training departments of large industrial companies. This website enables the creation and management of questionnaires consisting of multiple-choice questions.</p>
                 </div>
             </div>
         </div>

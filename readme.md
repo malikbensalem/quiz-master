@@ -4,9 +4,8 @@ WebbiSkools Ltd provides on-line educational solutions to commercial and governm
 
 ## Prerequisite
 
- - You must have a local envirment or domain setup with Mysql
- - Have PHP 8 or above and MySql 8 or above
- - Make sure PHP short tags enabled
+- You must have a local envirment or domain setup with Mysql
+- Have PHP 8 or above and MySql 8 or above
 
 ## Installation
 
@@ -14,6 +13,7 @@ WebbiSkools Ltd provides on-line educational solutions to commercial and governm
 
 ## Setup
 
+- Make sure PHP short tags are enabled
 - Set `$baseURL` to  domain (dbc.php)
 - Set `DB_HOST` to host (dbc.php)
 - Set `DB_USER` to database username (dbc.php)

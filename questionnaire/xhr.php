@@ -7,7 +7,7 @@ if (isPost()){
 	$_POST=sanitize($_POST);
 	if ($_POST['action']=='save_questionnaire'){
 		if (!hasAccess('3')){
-			die(json_encode(['result'=>false,'error'=>'401']));			
+			die(json_encode(['result'=>false,'error'=>'403']));			
 		}
 		$id=$_POST['id']??0;
 		$title=$_POST['title'];
@@ -22,7 +22,7 @@ if (isPost()){
 	}
 	elseif ($_POST['action']=='save_questionnaire_questions'){
 		if (!hasAccess('3')){
-			die(json_encode(['result'=>false,'error'=>'401']));	
+			die(json_encode(['result'=>false,'error'=>'403']));	
 		}
 		$qid=$_POST['id'];
 		$title=$_POST['title'];
@@ -53,9 +53,16 @@ if (isPost()){
 		$conds=substr($conds, 3);
 	
 		list($score)=mysqli_fetch_row(mysqli_query($mysqli,"SELECT sum(ql_mark) FROM question_line WHERE ql_qh_id=$qid AND ($conds) ")) or die(json_encode(['result'=>false, 'error'=>500]));
-		list($total)=mysqli_fetch_row(mysqli_query($mysqli,"SELECT sum(ql_mark) FROM question_line WHERE ql_qh_id=$qid ")) or die(json_encode(['result'=>false, 'error'=>500]));
+		$score=$score??0;
+		list($total)=mysqli_fetch_row(mysqli_query($mysqli,"SELECT sum(ql_mark) FROM question_line WHERE ql_qh_id=$qid and ql_qs_id=1")) or die(json_encode(['result'=>false, 'error'=>500]));
 		mysqli_query($mysqli,"INSERT INTO users_question_header (uqh_u_id,uqh_qh_id,uqh_score,uqh_total) VALUES (".$_SESSION['user_id'].",$qid,$score,$total)") or die(json_encode(['result'=>false, 'error'=>500]));
 
+		die(json_encode(['result'=>true]));
+	}
+	elseif ($_POST['action']=='delete_questionnaire'){
+		$id=$_POST['id'];
+		mysqli_query($mysqli,"UPDATE `question_header` SET `qh_qs_id` = '3' WHERE `question_header`.`qh_id` = $id;") or die(json_encode(['result'=>false, 'error'=>500]));
+		
 		die(json_encode(['result'=>true]));
 	}
 }
@@ -75,52 +82,62 @@ elseif (isGet()){
 		die(json_encode(['result'=>true,'cats'=>$qc,'selCats'=>$qhc]));
 	}
 	elseif ($_GET['action']=='get_questionnaires'){
-		$sts=$_GET['sts'];
+		$uid=$_SESSION['user_id'];
+		$sts=$_GET['sts']??'1';
 		$cats=isset($_GET['cats'])?' AND qc_id in ('.implode(',',$_GET['cats']).') ':'';
 		$assigned=$_GET['assigned'];
 		$complete=$_GET['complete'];
 
 		$qas=[];
-
 		$cond='';
-
-		$joins='';
 
 		if ($assigned==1){
 			$cond .= " AND (qh_u_id = ".$_SESSION['user_id']." OR qha_u_id = ".$_SESSION['user_id'].") ";
 		}
 		elseif ($assigned==2){
-			$cond .= " AND qha_u_id != ".$_SESSION['user_id'];
+			$cond .= " AND (SELECT CONCAT(u_first_name,' ',u_last_name) FROM users LEFT JOIN question_header_assignee ON u_id=qha_u_id WHERE qha_live=1 AND qha_qh_id=qh_id LIMIT 1) IS NULL ";
 		}
 		if (!hasAccess(2)){
 			if($complete==1){
-				$cond .= " AND uqh_score IS NULL";
+				$cond .= " AND (SELECT max(uqh_score) FROM users_question_header WHERE uqh_u_id=$uid AND uqh_qh_id=qh_id) IS NULL";
 			}
 			elseif($complete==2){
-				$cond .= " AND uqh_score < qh_pass";
+				$cond .= " AND  ((SELECT max(uqh_score) FROM users_question_header WHERE uqh_u_id=$uid AND uqh_qh_id=qh_id) < qh_pass OR (SELECT max(uqh_score) FROM users_question_header WHERE uqh_u_id=$uid AND uqh_qh_id=qh_id) IS NULL)";
 			}
 			elseif($complete==3){
-				$cond .= " AND uqh_score >= qh_pass";			
+				$cond .= " AND (SELECT max(uqh_score) FROM users_question_header WHERE uqh_u_id=$uid AND uqh_qh_id=qh_id) >= qh_pass";			
 			}
 		}
+		$qq=mysqli_query($mysqli,"SELECT qh_id,(SELECT max(uqh_score) FROM users_question_header WHERE uqh_u_id=$uid AND uqh_qh_id=qh_id) as uqh_score,qh_id,qh_title,qh_pass,qh_pass>=(SELECT max(uqh_score) FROM users_question_header WHERE uqh_u_id=$uid and uqh_qh_id=qh_id) as qh_passed,qh_qc_id as c_id, (SELECT CONCAT(u_first_name,' ',u_last_name) FROM users LEFT JOIN question_header_assignee ON u_id=qha_u_id WHERE qha_live=1 AND qha_qh_id=qh_id LIMIT 1) as assigned_by, qh_u_id,(SELECT DATE_FORMAT(qh_end_date, '%m/%d/%Y') FROM question_header_assignee WHERE qha_live=1 AND qha_qh_id=qh_id LIMIT 1) as deadline FROM question_header LEFT JOIN question_category ON JSON_CONTAINS(qh_qc_id, CAST(qc_id as JSON), '$') LEFT JOIN users ON u_id=qh_u_id LEFT JOIN question_header_assignee ON qha_qh_id=qh_id LEFT JOIN users_question_header ON u_id=uqh_id WHERE qh_qs_id in ($sts) $cond $cats GROUP BY qh_id");
 		
-		$qq=mysqli_query($mysqli,"SELECT qh_u_id,DATE_FORMAT(qh_end_date, '%m/%d/%Y') as qh_end_date,qh_id,qh_title,qh_pass,qh_pass>=(SELECT max(uqh_score) FROM users_question_header WHERE uqh_u_id=".$_SESSION['user_id'].") as qh_passed, CONCAT(u_first_name,' ',u_last_name) as f_name,GROUP_CONCAT(qc_id SEPARATOR ', ') as c_id ,GROUP_CONCAT(qc_desc SEPARATOR ', ') as c_desc FROM question_header LEFT JOIN question_category ON JSON_CONTAINS(qh_qc_id, CAST(qc_id as JSON), '\$') LEFT JOIN question_header_assignee ON qha_qh_id=qh_id LEFT JOIN users ON u_id=qh_u_id LEFT JOIN users_question_header ON u_id=uqh_id WHERE qh_qs_id in ($sts) $cond $cats GROUP BY qh_id") or die(json_encode(['result'=>false, 'error'=>500]));
-
 		while ($r=mysqli_fetch_assoc($qq)){	
-			$owned = mysqli_fetch_row(mysqli_query($mysqli,"SELECT u_first_name,u_last_name FROM users WHERE u_id=".$r['qh_u_id']));
-			$owned = $owned[0].' '.$owned[1];
+			if(is_numeric($r['qh_id'])){
+				if ($r['c_id']=='[]'){
+					$r['c_id']='""';
+				}else{
+					$r['c_id']=substr($r['c_id'], 1, -1);
+				}
+				$qcdesc=mysqli_query($mysqli,"SELECT qc_desc FROM question_category WHERE qc_id in(".$r['c_id'].")");
+				$owned = mysqli_fetch_row(mysqli_query($mysqli,"SELECT CONCAT(u_first_name,' ',u_last_name) FROM users WHERE u_id=".$r['qh_u_id']));
+				$cdesc='';
 
-			$qas[]=[
-				'id'=>$r['qh_id'],
-				'title'=>$r['qh_title'],
-				'cid'=>$r['c_id'],
-				'cat'=>$r['c_desc']??'',
-				'pass'=>$r['qh_pass'],
-				'passed'=>$r['qh_passed']??'0',
-				'assigned'=>$r['f_name']??'',
-				'deadline'=>$r['qh_end_date']??'',
-				'owned'=>$owned??'',
-			];
+				while ($rr=mysqli_fetch_assoc($qcdesc)){
+					$cdesc.=$rr['qc_desc'].' ,';
+				}
+				$cdesc=substr($cdesc, 0, -1);
+
+				$qas[]=[
+					'id'=>$r['qh_id'],
+					'title'=>$r['qh_title'],
+					'cid'=>$r['c_id'],
+					'cat'=>$cdesc==''?'-':$cdesc,
+					'pass'=>$r['qh_pass'],
+					'passed'=>$r['qh_passed']??'0',
+					'assigned'=>$r['f_name']??'-',
+					'deadline'=>$r['deadline']=='00/00/0000'?'No deadline':$r['deadline']??'-',
+					'owned'=>$owned,
+				];
+			}
 		}
 		die(json_encode(['result'=>$qas!=[],'quest'=>$qas]));
 	}
@@ -164,11 +181,12 @@ elseif (isGet()){
 	elseif ($_GET['action']=='get_user_attempts'){
 
 		$quqh='';
+		$cond=[];
 		if (!hasAccess(2)){
 			$cats=isset($_GET['cats'])?' AND qc_id in ('.implode(',',$_GET['cats']).') ':'';
 
 			$cond=$cond==[]?'':'Where '.implode(' AND ',$cond);
-			$quqh=mysqli_query($mysqli,"SELECT qh_id,u_first_name,u_last_name,qh_title,DATE_FORMAT(uqh_input_date, '%m/%d/%Y %H:%i') as uqh_input_date,uqh_score,uqh_total,qh_pass FROM `user_question_header` LEFT JOIN question_header ON uqh_qh_id=qh_id LEFT JOIN user ON uqh_u_id=u_id LEFT JOIN question_category ON JSON_CONTAINS(qh_qc_id, CAST(qc_id as JSON), '\$') WHERE u_id=".$_SESSION['user_id']." $cats GROUP BY uqh_id ORDER BY `user_question_header`.`uqh_input_date` DESC");
+			$quqh=mysqli_query($mysqli,"SELECT qh_id,u_first_name,u_last_name,qh_title,DATE_FORMAT(uqh_input_date, '%m/%d/%Y %H:%i') as uqh_input_date,uqh_score,uqh_total,qh_pass FROM `users_question_header` LEFT JOIN question_header ON uqh_qh_id=qh_id LEFT JOIN users ON uqh_u_id=u_id LEFT JOIN question_category ON JSON_CONTAINS(qh_qc_id, CAST(qc_id as JSON), '\$') WHERE u_id=".$_SESSION['user_id']." $cats GROUP BY uqh_id ORDER BY `users_question_header`.`uqh_input_date` DESC");
 		}else{
 			$usrs=(isset($_GET['users']) && !empty($_GET['users'])) ?' u_id in ('.implode(',', $_GET['users']).') ':'';
 

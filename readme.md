@@ -1,4 +1,4 @@
-# Quizmaster
+# Quiz master
 
 WebbiSkools Ltd provides on-line educational solutions to commercial and government clients, such as universities and training departments of large industrial companies. This website enables the creation and management of questionnaires consisting of multiple-choice questions.
 

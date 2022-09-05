@@ -111,16 +111,17 @@ elseif (isGet()){
 		$qq=mysqli_query($mysqli,"SELECT qh_id,(SELECT max(uqh_score) FROM users_question_header WHERE uqh_u_id=$uid AND uqh_qh_id=qh_id) as uqh_score,qh_id,qh_title,qh_pass,qh_pass>=(SELECT max(uqh_score) FROM users_question_header WHERE uqh_u_id=$uid and uqh_qh_id=qh_id) as qh_passed,qh_qc_id as c_id, (SELECT CONCAT(u_first_name,' ',u_last_name) FROM users LEFT JOIN question_header_assignee ON u_id=qha_u_id WHERE qha_live=1 AND qha_qh_id=qh_id LIMIT 1) as assigned_by, qh_u_id,(SELECT DATE_FORMAT(qh_end_date, '%m/%d/%Y') FROM question_header_assignee WHERE qha_live=1 AND qha_qh_id=qh_id LIMIT 1) as deadline FROM question_header LEFT JOIN question_category ON JSON_CONTAINS(qh_qc_id, CAST(qc_id as JSON), '$') LEFT JOIN users ON u_id=qh_u_id LEFT JOIN question_header_assignee ON qha_qh_id=qh_id LEFT JOIN users_question_header ON u_id=uqh_id WHERE qh_qs_id in ($sts) $cond $cats GROUP BY qh_id");
 		
 		while ($r=mysqli_fetch_assoc($qq)){	
-			if(is_numeric($r['qh_id'])){
-				if ($r['c_id']=='[]'){
-					$r['c_id']='""';
-				}else{
-					$r['c_id']=substr($r['c_id'], 1, -1);
-				}
+			if($r['c_id']!='"[]"'){
+				$r['c_id']=substr($r['c_id'], 1, -1);
+			}
+			if ($r['c_id']!='[]'){
+				$r['c_id']='"[]"';
+			}
+
 				$qcdesc=mysqli_query($mysqli,"SELECT qc_desc FROM question_category WHERE qc_id in(".$r['c_id'].")");
 				$owned = mysqli_fetch_row(mysqli_query($mysqli,"SELECT CONCAT(u_first_name,' ',u_last_name) FROM users WHERE u_id=".$r['qh_u_id']));
 				$cdesc='';
-
+				
 				while ($rr=mysqli_fetch_assoc($qcdesc)){
 					$cdesc.=$rr['qc_desc'].' ,';
 				}
@@ -137,7 +138,6 @@ elseif (isGet()){
 					'deadline'=>$r['deadline']=='00/00/0000'?'No deadline':$r['deadline']??'-',
 					'owned'=>$owned,
 				];
-			}
 		}
 		die(json_encode(['result'=>$qas!=[],'quest'=>$qas]));
 	}

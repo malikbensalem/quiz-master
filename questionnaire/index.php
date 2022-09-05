@@ -91,7 +91,6 @@ if (!loggedin()){
 			}
 			function getQuestionnaires(sts,cat=[],assign=1,complete=1){
 				sts=sts??'1'
-				console.log(sts)
 				ajax({
 					method: 'GET',
 	                url: 'xhr.php',

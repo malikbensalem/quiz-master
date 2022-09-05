@@ -84,7 +84,6 @@ elseif (isGet()){
 	elseif ($_GET['action']=='get_questionnaires'){
 		$uid=$_SESSION['user_id'];
 		$sts=$_GET['sts']??'1';
-		// echo $sts;
 		$cats=isset($_GET['cats'])?' AND qc_id in ('.implode(',',$_GET['cats']).') ':'';
 		$assigned=$_GET['assigned'];
 		$complete=$_GET['complete'];
@@ -96,7 +95,7 @@ elseif (isGet()){
 			$cond .= " AND (qh_u_id = ".$_SESSION['user_id']." OR qha_u_id = ".$_SESSION['user_id'].") ";
 		}
 		elseif ($assigned==2){
-			$cond .= " AND (SELECT CONCAT(u_first_name,' ',u_last_name) FROM users LEFT JOIN question_header_assignee ON u_id=qha_u_id WHERE qha_live=1 AND qha_qh_id=qh_id LIMIT 1) IS NULL ";
+			$cond .= " AND (u_id!=".$_SESSION['user_id'].") ";
 		}
 		if (!hasAccess(2)){
 			if($complete==1){

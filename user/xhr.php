@@ -3,18 +3,19 @@ include $_SERVER['ROOT_PATH'].'assets/connection/dbc.php';
 if (!loggedin()){
 	die(json_encode(['result'=>false,'error'=>'401']));
 }
-if (!hasAccess(2)){
-	die(json_encode(['result'=>false,'error'=>'401']));			
-}
+
 if (isPost()){
 	$_POST=sanitize($_POST);
 	if ($_POST['action']=='remove_user'){
 		$uid=$_POST['id'];
+		if (!hasAccess(4)){
+			die(json_encode(['result'=>false,'error'=>'403']));			
+		}
 		mysqli_query($mysqli,"UPDATE `users` SET `u_us_id` = '3' WHERE `u_id` = $uid;");
 	}
 	elseif ($_POST['action']=='change_user_type'){
 		if (!hasAccess(4)){
-			die(json_encode(['result'=>false,'error'=>'401']));			
+			die(json_encode(['result'=>false,'error'=>'403']));			
 		}
 		$uid=$_POST['id'];
 		$type=$_POST['type'];
@@ -37,7 +38,7 @@ if (isPost()){
 	}
 	elseif ($_POST['action']=='user_assignee'){	
 		if (!hasAccess(3)){
-				die(json_encode(['result'=>false,'error'=>'401']));
+				die(json_encode(['result'=>false,'error'=>'403']));
 		}
 		$qid=$_POST['qid'];
 		$users=$_POST['users']??[];
@@ -62,16 +63,16 @@ elseif(isGet()){
 		die(json_encode(['result'=>true,'types'=>$ut]));
 	}
 	elseif ($_GET['action']=='get_user_assignee'){
-		if (!hasAccess(3)){
-			die(json_encode(['result'=>false,'error'=>'401']));				
+		if (!hasAccess(2)){
+			die(json_encode(['result'=>false,'error'=>'403']));				
 		}
 		$qid=$_GET['qid'];
 		$qqha=mysqli_query($mysqli,"SELECT qha_qh_id,qha_u_id,DATE_FORMAT(qh_input_date, '%Y-%m-%d') as qh_input_dates,qh_end_date,CONCAT(u_first_name,' ',u_last_name) as qha_u_name, (select CONCAT(u_first_name,' ',u_last_name) FROM users WHERE u_id=qh_assigned_by) as qh_a_name FROM question_header_assignee LEFT JOIN users ON u_id = qha_u_id WHERE qha_qh_id=$qid AND qha_live=1") or die(json_encode(['result'=>false,'error'=>'500']));
-
 		$qha=[];
-
 		while ($r=mysqli_fetch_assoc($qqha)) {
-			list($attempts,$best,$passed) = mysqli_fetch_row(mysqli_query($mysqli,"SELECT count(uqh_id),max(uqh_score),uqh_total<=count(uqh_id) FROM `users_question_header` WHERE uqh_u_id = ".$r['qha_u_id']." AND uqh_qh_id=".$r['qha_qh_id'])) or die(json_encode(['result'=>false,'error'=>'500']));
+			list($attempts) = mysqli_fetch_row(mysqli_query($mysqli,"SELECT count(uqh_id) FROM `users_question_header` WHERE uqh_u_id = ".$r['qha_u_id']." AND uqh_qh_id=".$r['qha_qh_id'])) or die(json_encode(['result'=>false,'error'=>'500']));
+			list($best,$passed) = mysqli_fetch_row(mysqli_query($mysqli,"SELECT uqh_score,uqh_total<=uqh_score FROM `users_question_header` WHERE uqh_u_id = ".$r['qha_u_id']." AND uqh_qh_id=".$r['qha_qh_id']." ORDER BY uqh_score LIMIT 1")) or die(json_encode(['result'=>false,'error'=>'500']));
+
 
 			$qha[]=[
 				'uid'=>$r['qha_u_id'],
@@ -89,15 +90,16 @@ elseif(isGet()){
 		die(json_encode(['result'=>$qha!=[],'users'=>$qha]));
 	}
 	elseif ($_GET['action']=='get_users'){
-		if (!hasAccess('2')){
-			die(json_encode(['result'=>false,'error'=>'401']));	
-		}
-		$sts=$_GET['sts']??'(SELECT ut_id FROM `users_type`)';
 		$id=isset($_GET['id'])?' AND u_id='.$_GET['id']:'';
+		// if ($id==''){
+		// 	if (!hasAccess('2')){
+		// 		die(json_encode(['result'=>false,'error'=>'403']));	
+		// 	}
+		// }
+		$sts=$_GET['sts']??'(SELECT ut_id FROM `users_type`)';
 		$name=isset($_GET['name'])?' AND (CONCAT(u_first_name," ",u_last_name) LIKE "%'.$_GET['name'].'%" OR u_email LIKE "%'.$_GET['name'].'%") LIMIT 1':'';
 		$qu=mysqli_query($mysqli,"SELECT u_id,u_first_name,u_last_name,ut_desc,u_email FROM `users` LEFT JOIN users_type ON ut_id=u_ut_id WHERE u_us_id=1 AND u_ut_id in($sts) $name $id") or die(json_encode(['result'=>false,'error'=>'500']));
 		$u=[];
-
 		while ($r=mysqli_fetch_assoc($qu)) {
 			$u[]=[
 				'id'=>$r['u_id'],
@@ -107,6 +109,10 @@ elseif(isGet()){
 			];
 		}
 		die(json_encode(['result'=>$u!=[],'users'=>$u]));
+	}
+	elseif ($_POST['action']=='remove_user'){
+		$uid=$_POST['id'];
+		mysqli_query($mysqli,"UPDATE `user` SET `u_us_id` = '3' WHERE `user`.`u_id` = $uid;");
 	}
 }
 die(json_encode(['result'=>false,'error'=>'404']));

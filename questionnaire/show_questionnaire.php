@@ -7,8 +7,8 @@ if (!loggedin()){
 	include ($_SERVER['ROOT_PATH'].'assets/errors/401.php');
 	die();
 }
-$noContent = mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM `question_header` WHERE qh_id='$qid'"))==0;
-if ($noContent){
+list($title) = mysqli_fetch_row(mysqli_query($mysqli,"SELECT qh_title FROM `question_header` WHERE qh_id='$qid' AND qh_qs_id!=3"));
+if ($title==[]){
 	include ($_SERVER['ROOT_PATH'].'assets/errors/204.php');
 	die();
 }
@@ -17,7 +17,7 @@ if ($noContent){
 
 <html>
 	<head>
-		<?getHead('Questionnaire')?>
+		<?getHead($title)?>
 		<style type="text/css">
 			.card{
 				margin-bottom: 20px;
@@ -47,7 +47,7 @@ if ($noContent){
 		  <div class="modal-dialog modal-dialog-centered" role="document">
 		    <div class="modal-content">
 		      <div class="modal-header modal-header-info">
-		        <h5 class="modal-title">Questionnaire Complete</h5>
+		        <h5 class="modal-title"><i class="fa-solid fa-clipboard-check"></i> Questionnaire Complete</h5>
 		      </div>
 		      <div class="modal-body">
 		      	<div class="alert alert-success">Go to the results page to see how you did.</div>

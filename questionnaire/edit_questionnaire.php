@@ -1,17 +1,18 @@
 <?
 include $_SERVER['ROOT_PATH'].'assets/connection/dbc.php';
 
-
-$qid=$_GET['id']??'0';
-if (!loggedin()||!hasAccess('2')){
+if (!loggedin()){
 	include $baseURL."assets/errors/401.php";
 }
-$noContent = mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM `question_header` WHERE qh_id='$qid'"))==0;
+if (!hasAccess('2')){
+	include $baseURL."assets/errors/403.php";
+}
+$qid=$_GET['id']??'0';
+$noContent = mysqli_num_rows(mysqli_query($mysqli,"SELECT qh_id FROM `question_header` WHERE qh_id='$qid' AND qh_qs_id!=3"))==0;
 if ($noContent){
 	include ($_SERVER['ROOT_PATH'].'assets/errors/204.php');
 	die();
 }
-
 ?>
 
 <html>
@@ -29,7 +30,7 @@ if ($noContent){
 		<div class="container">
 			<div class="row">
 				<div class="col-md-4">
-					<?breadcrumbs(['questionnaire'],['questionnaire'=>'Edit Questionnaire'])?>
+					<?breadcrumbs(['questionnaire'],['questionnaire'=>"Edit Questionnaire <i class='fa-solid fa-clipboard-list'></i>"])?>
 				</div>
 				<div class="col-md-8" id="questionnaire-all">
 					<label class="required">Questionnaire title</label><h1 id="questionnaire-title" contenteditable="true"></h1><br>
@@ -88,7 +89,7 @@ if ($noContent){
 		  <div class="modal-dialog modal-dialog-centered" role="document">
 		    <div class="modal-content">
 		      <div class="modal-header modal-header-info">
-		        <h5 class="modal-title">Saved questionnaire</h5>
+		        <h5 class="modal-title"><i class="fa-regular fa-file"></i> Saved questionnaire</h5>
 		      </div>
 		      <div class="modal-body">
 		        <div class="alert alert-success">
@@ -103,7 +104,7 @@ if ($noContent){
 		  <div class="modal-dialog modal-dialog-centered" role="document">
 		    <div class="modal-content">
 		      <div class="modal-header modal-header-info">
-		        <h5 class="modal-title">Cannot save questionnaire</h5>
+		        <h5 class="modal-title"><i class="fa-solid fa-floppy-disk"></i> Cannot save questionnaire</h5>
 		      </div>
 		      <div class="modal-body">
 		      	<div class="alert alert-danger">Unable to save questionnaire as a question is missing a title or there is no correct option. </div>
@@ -116,7 +117,7 @@ if ($noContent){
 		  <div class="modal-dialog modal-dialog-centered" role="document">
 		    <div class="modal-content">
 		      <div class="modal-header modal-header-info">
-		        <h5 class="modal-title">Delete questionnaire</h5>
+		        <h5 class="modal-title"><i class="fa-solid fa-x"></i> Delete questionnaire</h5>
 		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 		          <span aria-hidden="true">&times;</span>
 		        </button>
@@ -160,8 +161,8 @@ if ($noContent){
 		                		})
                 			}
 	                		$('#questionnaire-cats').append('<option value="'+cat.id+'" '+selected+'>'+cat.desc+'</option>')
+	                		$('.selectpicker').selectpicker('refresh')
                 		})
-                		$('.selectpicker').selectpicker('refresh')
                 	}
 				})   
 			}
@@ -178,7 +179,6 @@ if ($noContent){
 
 			function getOptions(options){
 				all=[]
-
 				options.find('div[data-option]').each(function(){
 					all.push({							
 					'title':$(this).find('input[data-option-desc]').val(),
@@ -239,9 +239,24 @@ if ($noContent){
 					})      			
 				}
 			})
+			$('#dm-delete').click(function(){
+				ajax({
+					method: 'POST',
+	                url: 'xhr.php',
+	                data: {
+	                    action:'delete_questionnaire',
+	                    id:<?echo $qid?>,
+	                },
+	                dataType: 'json',
+				},function(data){
+					if (data.result){
+                		timedRedirect('./',0)
+                	}
+				})
+			})
 
 			$('#add-question').click(function(){
-				$('#questions').append('<div class="card" data-question><div class="card-header"><label class="required">Question title:</label><h3 data-title contenteditable="true"></h3><label>Mark<input data-mark class="form-control form-control-sm"></label></div><div class="card-body"><label>Options:</label><div class="form-group" data-option><label>A.</label><div class="input-group"><input class="form-control" data-option-desc><div class="input-group-append"><button class="btn btn-outline-success" data-option-correct>Correct</button></div></div></div><div class="form-group" data-option><label>B.</label><div class="input-group"><input class="form-control" data-option-desc><div class="input-group-append"><button class="btn btn-outline-success" data-option-correct>Correct</button></div></div></div><div class="form-group" data-option><label>C.</label><div class="input-group"><input class="form-control" data-option-desc><div class="input-group-append"><button class="btn btn-outline-success" data-option-correct>Correct</button></div></div></div></div><div class="card-footer"><button class="btn btn-danger" data-remove>Remove question</button><button class="btn btn-dark float-right" data-add-option>Add options</button></div></div>')
+				$('#questions').append('<div class="card" data-question><div class="card-header"><label class="required">Question title:</label><h3 data-title contenteditable="true"></h3><label>Mark<input data-mark class="form-control form-control-sm"></label></div><div class="card-body"><label>Options:</label><div class="form-group" data-option><div class="input-group"><div class="input-group-prepend"><div class="input-group-text" data-alpha>A</div></div><input class="form-control" data-option-desc><div class="input-group-append"><button class="btn btn-outline-success" data-option-correct>Correct</button></div></div></div><div class="form-group" data-option><div class="input-group"><div class="input-group-prepend"><div class="input-group-text" data-alpha>B</div></div><input class="form-control" data-option-desc><div class="input-group-append"><button class="btn btn-outline-success" data-option-correct>Correct</button></div></div></div><div class="form-group" data-option><div class="input-group"><div class="input-group-prepend"><div class="input-group-text" data-alpha>C</div></div><input class="form-control" data-option-desc><div class="input-group-append"><button class="btn btn-outline-success" data-option-correct>Correct</button></div></div></div></div><div class="card-footer"><button class="btn btn-danger" data-remove>Remove question</button><button class="btn btn-dark float-right" data-add-option>Add options</button></div></div>')
 
 				Inputmask({ alias: 'positive'}).mask('input[data-mark]');
 			})
@@ -255,10 +270,13 @@ if ($noContent){
 				quest='<div class="card" data-question data-id='+id+'><div class="card-header"><label class="required">Question title:</label><h3 data-title contenteditable="true">'+title+'</h3><label>Mark<input value="'+mark+'" data-mark class="form-control form-control-sm"></label></div> <div class="card-body"><label>Options:</label>'
 				count=1;
 				options.forEach(function(o){
-					quest+='<div class="form-group" data-option><label>'+alpha[count]+'.</label><div class="input-group"><input class="form-control" data-option-desc value="'+o.title+'"><div class="input-group-append">'+(count>3?'<button class="btn btn-danger" data-remove>Remove</button>':'')+'<button class="btn btn-outline-success '+(o.correct=='true'?'active':'')+'" data-option-correct>Correct</button></div></div></div>'
+
+					// <div class="form-group" data-option><div class="input-group"><div class="input-group-prepend"><div class="input-group-text" data-alpha>B</div></div><input class="form-control" data-option-desc><div class="input-group-append"><button class="btn btn-outline-success" data-option-correct>Correct</button></div></div></div></div>
+
+					quest+='<div class="form-group" data-option><div class="input-group"><div class="input-group-prepend"><div class="input-group-text" data-alpha>'+alpha[count]+'</div></div><input class="form-control" data-option-desc value="'+o.title+'"><div class="input-group-append">'+(count>3?'<button class="btn btn-danger" data-remove>Remove</button>':'')+'<button class="btn btn-outline-success '+(o.correct=='true'?'active':'')+'" data-option-correct>Correct</button></div></div></div>'
 					count++
 				})
-				quest+='</div><div class="card-footer"><button class="btn btn-danger" data-remove>Remove question</button><button class="btn btn-dark float-right" data-add-option>Add options</button></div></div></div>'
+				quest+='</div><div class="card-footer"><button class="btn btn-danger" data-remove>Remove question</button><button class="btn btn-dark float-right" '+(options.length>=5?'disabled':'')+' data-add-option>Add options</button></div></div></div>'
 				quest+='</div></div>'
 				$('#questions').append(quest)
 				Inputmask({ alias: 'positive'}).mask('input[data-mark]');
@@ -321,7 +339,7 @@ if ($noContent){
 				let options= $(this).parents('.card')
 				$(this).parents('.form-group').remove()
 				options.find('.card-body div[data-option]').each(function(e){
-					$(this).find('label').text(alpha[e+1]+'.')	
+					$(this).find('div[data-alpha]').text(alpha[e+1]+'.')	
 				})
 			})
 			$('#questions').on('click','.card .card-footer button[data-remove]',function(){
@@ -330,11 +348,12 @@ if ($noContent){
 			})
 			$('#questions').on('click','.card .card-footer button[data-add-option]',function(){
 				let amount=$(this).parents('.card').find('.card-body').find('div[data-option]').length;
+
 				if (amount>3){
 					$(this).attr('disabled','true')
 				}
 
-				$(this).parents('.card').find('.card-body').append('<div class="form-group" data-option><label>'+alpha[amount+1]+'.</label><div class="input-group"><input class="form-control" data-option-desc><div class="input-group-append"><button class="btn btn-danger" data-remove>Remove</button><button class="btn btn-outline-success" data-option-correct>Correct</button></div></div></div>')
+				$(this).parents('.card').find('.card-body').append('<div class="form-group" data-option><div class="input-group"><div class="input-group-prepend"><div class="input-group-text" data-alpha>'+alpha[amount+1]+'</div></div><input class="form-control" data-option-desc><div class="input-group-append"><button class="btn btn-danger" data-remove="">Remove</button><button class="btn btn-outline-success" data-option-correct>Correct</button></div></div></div>')
 				
 			})
 

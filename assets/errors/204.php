@@ -9,12 +9,12 @@ include_once $_SERVER['ROOT_PATH'].'assets/connection/dbc.php';
     <body>
         <?include $_SERVER['ROOT_PATH'].'assets/running/nav.php';?>
         <div class="container error">
-            <?include_once $_SERVER['ROOT_PATH'].'assets/template/204.php';?>
             <div class="row">
                 <div class="col-md-12 text-center">
                     <?breadcrumbs()?>
                 </div>
             </div>
+            <?include_once $_SERVER['ROOT_PATH'].'assets/template/204.php';?>
         </div>
         <?include $_SERVER['ROOT_PATH'].'assets/running/footer.php'?>
     </body>

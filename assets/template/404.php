@@ -2,7 +2,7 @@
     <div class="row error">
         <div class="col-md-12 text-center">
             <h1>404</h1>
-            <h2>Page not found</h2>
+            <h2>Not found</h2>
             <br><hr>
             <h3 class="text-center">You fell into a hole and could not be found.</h3>
         </div>

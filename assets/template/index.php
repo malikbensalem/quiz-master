@@ -1,7 +1,7 @@
 <?
 include $_SERVER['ROOT_PATH'].'assets/connection/dbc.php';
 
-if (!loggedin()||!hasAccess('5')){
+if (!loggedin()){
 	include ($_SERVER['ROOT_PATH'].'assets/errors/401.php');
 	die();
 }

@@ -4,7 +4,8 @@
             <h1>500</h1>
             <h2>Internal server error</h2>
             <br><hr>
-            <h3 style="font-weight:normal" class="text-center">Something went wrong. please notify <a mailto="#">WebsiteSupport@WebbiSkools</a> of this issue.</h3>
+
+            <h3 style="font-weight:normal" class="text-center">Something went wrong. please notify <a href="mailto:#">WebsiteSupport@WebbiSkools</a> of this issue.</h3>
         </div>
     </div>
     <div class="row">

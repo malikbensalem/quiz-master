@@ -54,6 +54,9 @@ function ajax(ajax,callback){
 	    		else if (data.error=='403'){
 					$('#403-modal').modal('show');
 	    		}
+	    		else if (data.error=='401'){
+					$('#401-modal').modal('show');
+	    		}
 	    		loader(false)
 	    		return false;
 	    	}

@@ -3,7 +3,7 @@
   <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header modal-header-info">
-        <h5 class="modal-title" id="uam-modal-title">Assign users</h5>
+        <h5 class="modal-title" id="uam-modal-title"><i class="fa-solid fa-user-plus"></i> Assign users</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -54,12 +54,13 @@
         dataType: 'json',
       },function(data){
         if (data.result){
+          $('#uam-tbl tbody tr[data-empty]').remove()
             data.users.forEach(function(u){
               if ($('#uam-tbl tbody').find('tr[data-uid="'+u.id+'"]').length){
                 timedAlert('#uam-alert','<div class="alert alert-danger">This user is already added to the assignees list</div>')
                 return
               }
-              $('#uam-tbl tbody').append('<tr data-uid='+u.id+' ><td data-name>'+u.name+'</td><td data-assign><? echo mysqli_fetch_row(mysqli_query($mysqli,"SELECT CONCAT(u_first_name,' ',u_last_name) FROM users WHERE u_id=".$_SESSION['user_id']))[0]??''?></td><td>-</td><td><input min="<?echo date('Y-m-d')?>" data-date class="form-control" type="date"  placeholder="deadline"></td><td>-</td><td>-</td><td>-</td><td><button data-remove class="btn btn-danger"><i class="fa-regular fa-trash-can"></i></button></td></tr>')
+              $('#uam-tbl tbody').append('<tr data-uid='+u.id+' ><td data-name>'+u.name+'</td><td data-assign><? echo mysqli_fetch_row(mysqli_query($mysqli,"SELECT CONCAT(u_first_name,' ',u_last_name) FROM users WHERE u_id=".$_SESSION['user_id']))[0]??'-'?></td><td>-</td><td><input min="<?echo date('Y-m-d')?>" data-date class="form-control" type="date"  placeholder="deadline"></td><td>-</td><td>-</td><td>-</td><td><button data-remove class="btn btn-danger"><i class="fa-regular fa-trash-can"></i></button></td></tr>')
               return
             })
           } 
@@ -125,6 +126,9 @@
   
   $('#uam-tbl tbody').on('click','button[data-remove]',function(){
     $(this).parents('tr').remove()
+    if ($('#uam-tbl tbody tr').length=='0'){
+      $('#uam-tbl tbody').append('<tr data-empty><td class="text-center" colspan="100%">No users assigned to this questionnaire</td></tr>')
+    }
   })
   <?if (!hasAccess('3')){?>
     $('#user-assign-modal').find('input,select,#uam-search').attr('disabled','true')

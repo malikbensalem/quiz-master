@@ -3,7 +3,7 @@
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header modal-header-info">
-        <h5 class="modal-title" id="cem-modal-title">Questionnaire</h5>
+        <h5 class="modal-title" id="cem-modal-title"><i class="fa-solid fa-plus"></i> Questionnaire</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -32,7 +32,7 @@
       	<div class="form-group">
       		<div class="input-group">
       			<div class="input-group-prepend">
-	      			<div class="input-group-text">Categories</div>
+	      			<div class="input-group-text">Subject</div>
       			</div>	
             <select class="btn btn-outline-dark form-control selectpicker " title="Subject filter" multiple id="cem-cat" data-actions-box="true" data-live-search="true" data-selected-text-format="count > 3" data-size="5">
       				<?
@@ -90,6 +90,7 @@
             setTimeout(function(){
               $('#create-edit-modal').modal('hide')
             }, 2000);
+            $('#statuses button[data-btn-status].active').click()
 
             return true
           }

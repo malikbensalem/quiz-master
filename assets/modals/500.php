@@ -2,7 +2,7 @@
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header modal-header-info">
-        <h5 class="modal-title">Error</h5>
+        <h5 class="modal-title"><i class="fa-solid fa-bomb"></i> Error</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>

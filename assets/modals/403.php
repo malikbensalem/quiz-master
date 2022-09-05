@@ -1,5 +1,4 @@
-
-<div class="modal fade error" id="401-modal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade error" id="403-modal" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header modal-header-info">
@@ -9,7 +8,7 @@
         </button>
       </div>
       <div class="modal-body">
-        <?include_once $_SERVER['ROOT_PATH'].'assets/template/401.php';?>
+        <?include_once $_SERVER['ROOT_PATH'].'assets/template/403.php';?>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-light mr-auto" data-dismiss="modal">Close</button>

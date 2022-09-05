@@ -18,10 +18,8 @@ if (!loggedin()){
 			<div class="row">
 				<div class="col-md-4" >
 					<?breadcrumbs(['users'])?>
-
 					<div class="btn-group-vertical btn-block" id="statuses">
-						<a class="btn btn-lg btn-block btn-outline-info active">Type</a>
-						
+						<a class="btn btn-lg btn-block btn-outline-info active">Type <i class="fa-solid fa-graduation-cap"></i></a>
 					</div>
 				</div>
 				<div class="col-md-8">

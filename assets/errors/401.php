@@ -8,7 +8,7 @@ include_once $_SERVER['ROOT_PATH'].'assets/connection/dbc.php';
     </head>
     <body >
         <?include $_SERVER['ROOT_PATH'].'assets/running/nav.php';?>
-        <div class="container">
+        <div class="container error">
             <div class="row">
                 <div class="col-md-12 text-center">
                     <?breadcrumbs()?>

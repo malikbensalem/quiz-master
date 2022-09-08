@@ -1,7 +1,10 @@
 <?
 function loggedin(){
 	global $mysqli;
-	return mysqli_num_rows(mysqli_query($mysqli,"SELECT u_id FROM users WHERE u_us_id=1 AND u_ut_id!=0 AND u_id='".$_SESSION['user_id']."'"))>0;
+	if ($mysqli){
+		return mysqli_num_rows(mysqli_query($mysqli,"SELECT u_id FROM users WHERE u_us_id=1 AND u_ut_id!=0 AND u_id='".$_SESSION['user_id']."'"))>0;
+	}
+	return false;
 }
 function sanitize($value) {
   global $mysqli;
@@ -67,8 +70,8 @@ function breadcrumbs($active=[],$text=[]){
 		'.(hasAccess(2)?'<a data-users href="'.$baseURL.'user/" class="btn btn-lg btn-block btn-outline-dark">'.(hasAccess('2')?"View":'Manage').' users <i class="fa-solid fa-users"></i></a>':'');
 	}
 	else{
-		echo '<a data-questionnaire href="'.$baseURL.'" class="btn btn-lg btn-block btn-outline-dark" >Home</a>
-		<a data-questionnaire href="'.$baseURL.'login.php" class="btn btn-lg btn-block btn-outline-dark" >Login / Register</a>';
+		echo '<a data-questionnaire href="'.$baseURL.'" class="btn btn-lg btn-block btn-outline-dark" >Home <i class="fa-solid fa-house-chimney"></i></a>
+		<a data-questionnaire href="'.$baseURL.'auth/login.php" class="btn btn-lg btn-block btn-outline-dark" >Login / Register <i class="fa-solid fa-right-to-bracket"></i></a>';
 	}
 	echo '</div>';
 

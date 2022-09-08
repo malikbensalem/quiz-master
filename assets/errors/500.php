@@ -4,7 +4,7 @@ include_once $_SERVER['ROOT_PATH'].'assets/connection/dbc.php';
 <!DOCTYPE html>
 <html lang="en">
     <head>
-		<?getHead('404')?>
+		<?getHead('500')?>
     </head>
     <body>
 		<?include $_SERVER['ROOT_PATH'].'assets/running/nav.php';?>
@@ -14,7 +14,7 @@ include_once $_SERVER['ROOT_PATH'].'assets/connection/dbc.php';
                 	<?breadcrumbs()?>  
                 </div>
             </div>
-            <?include_once $_SERVER['ROOT_PATH'].'assets/template/404.php';?>
+            <?include_once $_SERVER['ROOT_PATH'].'assets/template/500.php';?>
         </div>
 		<?include $_SERVER['ROOT_PATH'].'assets/running/footer.php'?>
     </body>
